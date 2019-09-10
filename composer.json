@@ -1,0 +1,12 @@
+{
+    "name" : "JLF",
+    "authors" : [{
+            "name" : "Laisné Jérémie",
+            "email" : "laisne.jeremie83@gmail.com"
+    }],
+    "require" : {},
+    "description": "Forum traitant l'actualité de l'ASM, il s'agit d'un essai pour m'entrainer au PHP",
+    "autoload" : {
+            "psr-4" : {"App\\" : "src"}
+    }
+}
