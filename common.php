@@ -9,7 +9,7 @@ function getPDO()
     try
     {
         $db = new PDO("mysql:host=localhost;dbname=" . BDD , USER, MDP);
-        $db->exec("SET NAMES UTF-8");
+        $db->exec("SET NAMES UTF8");
     }
     catch(PDOException $exep)
     {

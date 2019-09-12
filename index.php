@@ -6,11 +6,19 @@ $url = getURL();
 $router = new App\Router\Router($url);
 
 $router->get("/", function(){
-    header("Location: views/login.php");
+    header("Location: login.php");
 });
 
 $router->get("/home", function(){
-    header("Location: views/home.php");
+    header("Location: home.php");
+});
+
+$router->get("/login", function(){
+    header("Location: login.php");
+});
+
+$router->get("/logout", function(){
+    header("Location: logout.php");
 });
 
 $router->run();

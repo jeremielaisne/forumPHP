@@ -1,6 +1,7 @@
 php_value display_errors 1
 AuthName "Page d'administration jeremielaisne.yo"
 
+# Empecher le listage dans un fichier
 Options -Indexes
 # Le serveur doit suivre les liens symboliques :
 Options +FollowSymlinks
@@ -11,8 +12,8 @@ RewriteEngine On;
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$                                              index.php?url=$1 [QSA, L]
 
-RewriteRule ^login$                                             /login/login.php [L]
-RewriteRule ^logout$                                            /logout/logout.php [L]
+RewriteRule ^login$                                             /login  [L]
+RewriteRule ^logout$                                            /logout [L]
 
 ErrorDocument 404                                               /404.php
 ErrorDocument 403                                               /403.php

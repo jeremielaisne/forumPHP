@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Cookie;
+require_once(dirname(__DIR__, 2) . "/vendor/autoload.php");
 require_once(dirname(__DIR__, 2) . "/init.php");
 
 class PageMaker
@@ -14,6 +15,7 @@ class PageMaker
         $this->usercookie = new UserCookie();
         $this->title = $title;
         $this->description = $description;
+        return $this;
     }
 
     /**
@@ -21,7 +23,7 @@ class PageMaker
      */
     public function start()
     {
-        require_once(URL_HOME . "views/header.php");
+        require_once(dirname(__DIR__, 2) . "/views/header.php");
     }
 
     /**
@@ -29,7 +31,7 @@ class PageMaker
      */
     public function end()
     {
-        require_once(URL_HOME . "views/footer.php");
+        require_once(dirname(__DIR__, 2) . "/views/footer.php");
     }
 
     /**

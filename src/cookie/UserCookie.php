@@ -1,7 +1,10 @@
 <?php
 
 namespace App\Cookie;
+require_once(dirname(__DIR__, 2) . "/vendor/autoload.php");
 require_once(dirname(__DIR__, 2) . "/init.php");
+
+use App\User;
 
 class UserCookie 
 {
@@ -60,8 +63,8 @@ class UserCookie
         $sha1key = self::keyUser($id_user);
         if ($sha1key === $key_user)
         {
-            $user = new App\User();
-            $user->id = $id_user;
+            $user = new User;
+            $user->setId($id_user);
             if ($user->isExist() && $user->load())
             {
                 $this->isConnect = true;
@@ -71,7 +74,6 @@ class UserCookie
         }
         self::erase();
         return false;
-
     }
 
     /**
@@ -80,7 +82,7 @@ class UserCookie
      * @param $id de l'utilisateur
      * 
      */
-    public function create($id)
+    public static function create($id)
     {
         $sha1key = self::keyUser($id);
         return setcookie("testForumCookie", $id . '$' . $sha1key, time() + (30 * 24 * 3600), "/");
@@ -90,7 +92,7 @@ class UserCookie
      * Suppression d'un cookie utilisateur
      * 
      */
-    public function erase() 
+    public static function erase() 
     {
         return setcookie("testForumCookie", "", time() - (30 * 24 * 3600), "/");
     }
@@ -99,7 +101,7 @@ class UserCookie
      * Clé de l'utilisateur
      * 
      */
-    public function keyUser($id)
+    public static function keyUser($id)
     {
         return sha1('ghtçà' . $id . 'ki6&@tyç');
     }

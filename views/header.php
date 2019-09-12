@@ -1,7 +1,7 @@
 <?php
-    if($this->getUsercookie()->getIsConnect() == false)
+    if($this->getUsercookie()->getIsConnect() == true)
     {
-        header("location:" . URL_PUBLIC . "login.php");
+        header("location: /");
         exit(0);
     }
 ?>
