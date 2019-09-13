@@ -234,16 +234,19 @@ class User {
     function update()
     {
         $db = getPDO();
-        $smt = $db->prepare("UPDATE 
-            user SET
-            firstname = :firstname,
-            lastname = :lastname,
-            mdp = :mdp,
-            email = :email,
-            nbpost = :nbpost,
-            is_connect = :is_connect,
-            updated_at = NOW()
-            WHERE id = :id_user
+        $smt = $db->prepare(
+            "UPDATE 
+                user 
+            SET
+                firstname = :firstname,
+                lastname = :lastname,
+                mdp = :mdp,
+                email = :email,
+                nbpost = :nbpost,
+                is_connect = :is_connect,
+                updated_at = NOW()
+            WHERE 
+                id = :id_user
         ");
         $smt->bindValue("id_user", $this->id, \PDO::PARAM_INT);
         $smt->bindValue("firstname", $this->firstname, \PDO::PARAM_STR);

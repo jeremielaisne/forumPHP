@@ -1,11 +1,11 @@
 <?php
 
+use App\Cookie\PageMaker;
+
 require_once(dirname(__DIR__) . "/jlf/vendor/autoload.php");
 require_once(dirname(__DIR__) . "/jlf/init.php");
 
-use App\Cookie\PageMaker;
-
-$pm = new PageMaker("Accueil", "Accueil - Forum");
+$pm = new PageMaker("Connexion - Forum", "Page de connexion au forum");
 
 if ($pm->getUsercookie()->getIsConnect() == true)
 {

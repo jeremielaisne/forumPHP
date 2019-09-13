@@ -1,3 +1,10 @@
+<?php
+    if($this->getUsercookie()->getIsConnect() == true)
+    {
+        header("location: /");
+        exit(0);
+    }
+?>
 <!DOCTYPE html>
 <html lang="FR">
     <head>
@@ -10,4 +17,4 @@
     </head>
     <body>
         <main>
-            <h1>Bonjour, bienvenue sur la page d'accueil du forum</h1>
+            <p>Bonjour, bienvenue sur la page de connexion</p>

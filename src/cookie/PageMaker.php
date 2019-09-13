@@ -23,7 +23,14 @@ class PageMaker
      */
     public function start()
     {
-        require_once(dirname(__DIR__, 2) . "/views/header.php");
+        if ($this->usercookie->getIsConnect() != true)
+        {
+            require_once(dirname(__DIR__, 2) . "/views/header_login.php");
+        }
+        else
+        {
+            require_once(dirname(__DIR__, 2) . "/views/header.php");
+        }
     }
 
     /**
