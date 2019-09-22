@@ -1,26 +1,68 @@
 <?php
 
-require("init.php");
+use App\Cookie\UserCookie;
+use App\Cookie\PageMaker;
+use App\User;
+
+require_once("vendor/autoload.php");
+require_once("init.php");
 
 $url = getURL();
-$router = new App\Router\Router($url);
+$app = new App\Router\Router($url);
 
-$router->get("/", function(){
-    header("Location: login.php");
+$app->get("/", function()
+{
+    $pm = new PageMaker("Connexion - Forum", "Page de connexion au forum");
+    if ($pm->getUsercookie()->getIsConnect() == true)
+    {
+        header("location: /home");
+        exit(0);
+    }
+    $pm->start();
+    require dirname(__DIR__) . "/jlf/views/login.php";
+    $pm->end();
 });
 
-$router->get("/home", function(){
-    header("Location: home.php");
+$app->get("/logout", function()
+{
+    UserCookie::erase();
+    header("Location: /");
 });
 
-$router->get("/login", function(){
-    header("Location: login.php");
+$app->get("/home", function()
+{
+    $pm = new PageMaker("Home - Dollars Forum", "Accueil du forum dollars durarara!");
+    $pm->start();
+    if ($pm->getUsercookie()->getIsConnect() == false)
+    {
+        echo "<p>Accès non autorisé.. Veuillez-vous connecté</p>";
+        echo "<a href='/'>Accueil</a>";
+    }
+    else
+    {
+        require dirname(__DIR__) . "/jlf/views/home.php";
+    }
+    $pm->end();
 });
 
-$router->get("/logout", function(){
-    header("Location: logout.php");
+$app->get("/signup", function()
+{
+    $pm = new PageMaker("Inscription, Inscription - Forum");
+    if ($pm->getUsercookie()->getIsConnect() === true)
+    {
+        header("Location: /home");
+        exit(0);
+    }
+    $pm->start();
+    require dirname(__DIR__) . "/jlf/views/signUp.php";
+    $pm->end();
 });
 
-$router->run();
+$app->get("/404", function()
+{
+    require dirname(__DIR__) . "/jlf/404.php";
+});
+
+$app->run();
 
 ?>

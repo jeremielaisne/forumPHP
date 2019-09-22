@@ -10,4 +10,4 @@
     </head>
     <body>
         <main>
-            <h1>Bonjour, bienvenue sur la page d'accueil du forum</h1>
+            <p>Bonjour, bienvenue sur la page de connexion</p>

@@ -25,11 +25,11 @@ class PageMaker
     {
         if ($this->usercookie->getIsConnect() != true)
         {
-            require_once(dirname(__DIR__, 2) . "/views/header_login.php");
+            require_once(dirname(__DIR__, 2) . "/views/templates/header_login.php");
         }
         else
         {
-            require_once(dirname(__DIR__, 2) . "/views/header.php");
+            require_once(dirname(__DIR__, 2) . "/views/templates/header.php");
         }
     }
 
@@ -38,7 +38,7 @@ class PageMaker
      */
     public function end()
     {
-        require_once(dirname(__DIR__, 2) . "/views/footer.php");
+        require_once(dirname(__DIR__, 2) . "/views/templates/footer.php");
     }
 
     /**

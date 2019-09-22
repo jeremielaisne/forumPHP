@@ -54,8 +54,6 @@ class UserCookie
      */
     public function check() 
     {
-        $db = getPDO();
-
         $pos = strpos($this->cookie, "$");
         $id_user = substr($this->cookie, 0, $pos);
         $key_user = substr($this->cookie, $pos+1);
@@ -94,7 +92,8 @@ class UserCookie
      */
     public static function erase() 
     {
-        return setcookie("testForumCookie", "", time() - (30 * 24 * 3600), "/");
+        setcookie("testForumCookie", "", time() - (30 * 24 * 3600), "/");
+        unset($_COOKIE['testForumCookie']);
     }
 
     /**
