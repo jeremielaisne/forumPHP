@@ -6,67 +6,34 @@ require_once(dirname(__DIR__, 2) . "/init.php");
 
 class PageMaker
 {
+    private $loader;
+    private $twig;
     private $usercookie;
-    private $title;
-    private $description;
 
-    function __construct($title = null, $description = null)
+    function __construct()
     {
+        $this->loader = new \Twig\Loader\FilesystemLoader('views');
+        $this->twig = new \Twig\Environment($this->loader, [
+            'cache' => false,
+        ]);
         $this->usercookie = new UserCookie();
-        $this->title = $title;
-        $this->description = $description;
         return $this;
     }
 
     /**
-     * Affichage du header d'une page
+     * Affichage du contenu d'une page 
      */
-    public function start()
+    public function render($page, $arg_var = null)
     {
-        if ($this->usercookie->getIsConnect() != true)
-        {
-            require_once(dirname(__DIR__, 2) . "/views/templates/header_login.php");
-        }
-        else
-        {
-            require_once(dirname(__DIR__, 2) . "/views/templates/header.php");
-        }
+        echo $this->twig->render($page, $arg_var);
     }
 
     /**
-     * Affichage du footer d'une page
-     */
-    public function end()
-    {
-        require_once(dirname(__DIR__, 2) . "/views/templates/footer.php");
-    }
-
-    /**
-     * Getters et Setters
+     * Getters Cookies
      */
     public function getUsercookie()
     {
         return $this->usercookie;
-    }
-
-    public function getTitle() : string
-    {
-        return $this->title;
-    }
-
-    public function setTitle($title) : void
-    {
-        $this->title = $title;
-    }
-
-    public function getDescription() : string
-    {
-        return $this->description;
-    }
-
-    public function setDescription($description) : void
-    {
-        $this->description = $description;
     }
 }
 

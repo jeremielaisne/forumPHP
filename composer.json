@@ -4,7 +4,9 @@
             "name" : "Laisné Jérémie",
             "email" : "laisne.jeremie83@gmail.com"
     }],
-    "require" : {},
+    "require" : {
+        "twig/twig": "^2.11"
+    },
     "description": "Forum hommage à l'anime Durarara!, il s'agit d'un essai pour m'entrainer au PHP",
     "autoload" : {
             "psr-4" : {"App\\" : "src"}

@@ -1,0 +1,8 @@
+{% extends 'templates/base.html.twig' %}
+{% block content %}
+<p>Bonjour {{ firstname }} {{ lastname }}</p>
+<p>Dernière connexion : {{ lastconnect|date('d/m/Y à H:i:s', '+01:00 GMT') }}</p>
+<p>Votre cookie : {{ cookie }}</p>
+<br/>
+<a href="/logout">Se déconnecté</a>
+{% endblock %}

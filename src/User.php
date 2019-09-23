@@ -2,6 +2,8 @@
 
 namespace App;
 
+use DateTime;
+
 /**
  * Création et gestion d'un utilisateur
  * 
@@ -114,9 +116,13 @@ class User {
         $this->created_at = $created_at;
     }
 
-    function getUpdatedAt() : DateTime 
+    function getUpdatedAt() : DateTime
     {
-        return $this->updated_at;
+        if ($this->updated_at != null)
+        {
+            return $this->updated_at;
+        }
+        return new DateTime();
     }
 
     function setUpdatedAt($updated_at) : void
