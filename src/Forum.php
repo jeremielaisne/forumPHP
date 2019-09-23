@@ -2,12 +2,15 @@
 
 namespace App;
 
+use App\Database\Connect;
+
+include(__DIR__ . "/db/Connect.php");
 /**
  * Création et gestion d'un utilisateur
  * 
  * @author Laisné Jérémie <laisne.jeremie83@gmail.com>
  */
-class Forum
+class Forum extends Connect
 {
     private $id;
     private $name;
@@ -147,7 +150,7 @@ class Forum
      */
     function load()
     {
-        $db = getPDO();
+        $db = Connect::getPDO();
         $smt = $db->prepare(
             "SELECT 
                 name,
@@ -185,7 +188,7 @@ class Forum
      */
     function isExist()
     {
-        $db = getPDO();
+        $db = Connect::getPDO();
         $smt = $db->prepare("SELECT 1 FROM Forum WHERE id = :id");
         $smt->bindParam("id", $this->id, \PDO::PARAM_INT);
         if ($smt->rowCount())
@@ -202,7 +205,7 @@ class Forum
      */
     function create()
     {
-        $db = getPDO();
+        $db = Connect::getPDO();
         $smt = $db->prepare(
             "INSERT INTO Forum(
                 name,

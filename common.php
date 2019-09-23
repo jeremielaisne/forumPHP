@@ -1,23 +1,6 @@
 <?php
 
-require_once(dirname(__DIR__) . "/jlf/vendor/autoload.php");
-
-
-/* Instanciation de la connexion */
-function getPDO()
-{
-    $db = null;
-    try
-    {
-        $db = new PDO("mysql:host=localhost;dbname=" . BDD , USER, MDP);
-        $db->exec("SET NAMES UTF8");
-    }
-    catch(PDOException $exep)
-    {
-        die($exep->getMessage());
-    }
-    return $db;
-}
+require_once(__DIR__ . "/vendor/autoload.php");
 
 /* Usage de variables $GET et $POST */
 function getURL($full = false)

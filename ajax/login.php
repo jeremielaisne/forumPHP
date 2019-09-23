@@ -1,6 +1,6 @@
 <?php
-    require_once(dirname(__DIR__ , 2) . "/jlf/vendor/autoload.php");
-    require_once(dirname(__DIR__ , 2) . "/jlf/init.php");
+    require_once(dirname(__DIR__) ."/vendor/autoload.php");
+    require_once(dirname(__DIR__) ."/common.php");
 
     use App\Cookie\UserCookie;
     use App\User;

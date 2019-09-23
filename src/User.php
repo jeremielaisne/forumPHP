@@ -2,14 +2,17 @@
 
 namespace App;
 
+use App\Database\Connect;
 use DateTime;
+
+include(__DIR__ . "/db/Connect.php");
 
 /**
  * Création et gestion d'un utilisateur
  * 
  * @author Laisné Jérémie <laisne.jeremie83@gmail.com>
  */
-class User {
+class User extends Connect{
 
     private $id;
     private $firstname;
@@ -139,7 +142,7 @@ class User {
      */
     function load()
     {
-        $db = getPDO();
+        $db = Connect::getPDO();
         $smt = $db->prepare(
             "SELECT
                 id,
@@ -179,7 +182,7 @@ class User {
      */
     function isExist()
     {
-        $db = getPDO();
+        $db = Connect::getPDO();
         $smt = $db->prepare("SELECT 1 FROM user WHERE id = :id");
         $smt->bindParam("id", $this->id, \PDO::PARAM_INT);
         $smt->execute();
@@ -198,7 +201,7 @@ class User {
      */
     function create()
     {
-        $db = getPDO();
+        $db = Connect::getPDO();
         $smt = $db->prepare(
             "INSERT INTO user(
                 firstname,
@@ -239,7 +242,7 @@ class User {
      */
     function update()
     {
-        $db = getPDO();
+        $db = Connect::getPDO();
         $smt = $db->prepare(
             "UPDATE 
                 user 
@@ -278,7 +281,7 @@ class User {
     public static function isValidLogin($email, $mdp)
     {
         $id_user = null;
-        $db = getPDO();
+        $db = Connect::getPDO();
 
         $smt = $db->prepare("SELECT id FROM user WHERE email = :email AND mdp = :mdp");
         $smt->bindValue("email", $email, \PDO::PARAM_STR);

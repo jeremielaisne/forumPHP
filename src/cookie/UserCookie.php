@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Cookie;
-require_once(dirname(__DIR__, 2) . "/vendor/autoload.php");
-require_once(dirname(__DIR__, 2) . "/init.php");
+require_once(dirname(__DIR__, 2) ."/vendor/autoload.php");
+require_once(dirname(__DIR__, 2) ."/common.php");
 
 use App\User;
 

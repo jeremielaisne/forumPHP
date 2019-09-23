@@ -3,8 +3,8 @@
 use App\Cookie\UserCookie;
 use App\Cookie\PageMaker;
 
-require_once("vendor/autoload.php");
-require_once("init.php");
+require_once(__DIR__ . "/vendor/autoload.php");
+require_once("common.php");
 
 $url = getURL();
 $app = new App\Router\Router($url);
