@@ -1,18 +1,19 @@
 {% extends 'templates/base.html.twig' %}
+{% block id_body %}background_login{% endblock %}
 {% block content %}
-<p>Formulaire de connexion</p>
-<form id="form_login">
-    <div class="form-group">
-        <label for="email_login">Email</label>
-        <input type="email" name="email_login" id="email_login" />
+<div id="block_login" class="container-fluid text-center">
+    <div class="row">
+        <form id="form_login" class="container">
+            <div class="form-group">
+                <label for="login_mdp">PASSWORD : </label>
+                <input type="password" class="form-control-sm" name="login_mdp" id="login_mdp" />
+                <p id="error_mdp" class="d-none"></p>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success pl-5 pr-5">Enter</button>
+            </div>
+            <a href="/signup">Sign Up</a> - <a href="/recovery">Recovery</a> 
+        </form>
     </div>
-    <div class="form-group">
-        <label for="mdp_login">Mot de passe</label>
-        <input type="password" name="mdp_login" id="mdp_login" />
-    </div>
-        <div class="form-group">
-        <button>Valider</button>
-    </div>
-</form>
-<p><a href="/signup">S'enregistrer</a>
+</div>
 {% endblock %}

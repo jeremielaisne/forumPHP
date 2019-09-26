@@ -5,26 +5,20 @@
     use App\Cookie\UserCookie;
     use App\User;
 
-    $tab_req = ["state" => false, "error"=> ""];
+    $tab_req = ["state" => false, "error" => [], "fatalError" => ""];
 
-    $email = (string) getFormVal("email_login");
-    $mdp = (string) getFormVal("mdp_login");
-
-    if (empty($email))
-    {
-        $tab_req["error"] = "Vous devez saisir une adresse email";
-    }
+    $mdp = (string) getFormVal("login_mdp");
 
     if (empty($mdp))
     {
-        $tab_req["error"] = "Vous devez saisir un mot de passe";
+        $tab_req["error"]["mdp"] = "Vous devez saisir un mot de passe !";
     }
 
     if (empty($tab_req["error"]))
     {
-        $id_user = User::isValidLogin($email, $mdp);
+        $id_user = User::isValidLogin($mdp);
 
-        if ($id_user !== null)
+        if ($id_user !== 0)
         {
             $user = new User;
             $user->setId($id_user);
@@ -35,6 +29,10 @@
             $user_cookie = UserCookie::create($id_user);
             
             $tab_req["state"] = true;
+        }
+        else
+        {
+            $tab_req["error"]["mdp"] = "Votre mot de passe est incorrect !";
         }
     }
 

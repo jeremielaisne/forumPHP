@@ -28,4 +28,11 @@ class UserTest extends TestCase
         $this->assertEquals('Laisné', $this->user->getLastname());
         $this->assertEquals('Jérémie', $this->user->getFirstname());
     }
+
+    public function testGeneratePassword()
+    {
+        $mdp = User::generatePassword();
+        echo $mdp;
+        $this->assertIsString($mdp);
+    }
 }

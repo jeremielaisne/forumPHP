@@ -1,3 +1,9 @@
+var errorMessage = function errorMessage(msg){
+    let id = Object.keys(msg)[0]
+    $("#error_"+id).removeClass("d-none");
+    $("#error_"+id).text(""+msg[id]+"").css("color", "red")
+}
+
 $(document).ready( function() {
     $("body").on("submit", "#form_login", function(){
         var formData = new FormData(document.getElementById("form_login"))
@@ -11,15 +17,14 @@ $(document).ready( function() {
 			processData: false, // Ne pas traiter les données
             success: function(data){
                 if (data.state == true){
-                    $(location).attr('href', '/home');
+                    $(location).attr('href', '/home')
                 }
                 else{
-                    alert("Problème de connexion");
-                    console.log(data)
+                    errorMessage(data.error)
                 }
             },
             error: function (xhr, ajaxOptions, thrownError) {
-				alert("ERREUR", xhr.status + " : " + thrownError, "error");
+				alert("ERREUR", xhr.status + " : " + thrownError, "error")
 			}
         })
         return false;

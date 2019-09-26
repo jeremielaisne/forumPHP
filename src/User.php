@@ -4,6 +4,7 @@ namespace App;
 
 use App\Database\Connect;
 use DateTime;
+use phpDocumentor\Reflection\Types\Boolean;
 
 include(__DIR__ . "/db/Connect.php");
 
@@ -140,7 +141,7 @@ class User extends Connect{
      * 
      * @return obj User
      */
-    function load()
+    function load() : User
     {
         $db = Connect::getPDO();
         $smt = $db->prepare(
@@ -180,7 +181,7 @@ class User extends Connect{
      * 
      * @return bool
      */
-    function isExist()
+    function isExist() : bool
     {
         $db = Connect::getPDO();
         $smt = $db->prepare("SELECT 1 FROM user WHERE id = :id");
@@ -199,7 +200,7 @@ class User extends Connect{
      * 
      * @return bool
      */
-    function create()
+    function create() : bool
     {
         $db = Connect::getPDO();
         $smt = $db->prepare(
@@ -223,14 +224,13 @@ class User extends Connect{
         );
         $smt->bindValue("firstname", $this->firstname, \PDO::PARAM_STR);
         $smt->bindValue("lastname", $this->lastname, \PDO::PARAM_STR);
-        $smt->bindValue("email", $this->email, \PDO::PARAM_STR);
+        $smt->bindValue("email", self::generatePassword(), \PDO::PARAM_STR);
         $smt->bindValue("mdp", $this->mdp, \PDO::PARAM_STR);
         $smt->bindValue("nbpost", 0, \PDO::PARAM_INT);
         $smt->bindValue("is_connect", true, \PDO::PARAM_BOOL);
         if($smt->execute())
         {
             $this->id = $db->lastInsertId();
-            return true;
         }
         return false;
     }
@@ -240,7 +240,7 @@ class User extends Connect{
      * 
      * @return bool
      */
-    function update()
+    function update() : bool
     {
         $db = Connect::getPDO();
         $smt = $db->prepare(
@@ -272,26 +272,92 @@ class User extends Connect{
     }
 
     /**
+     * 
+     * Vérification si un mail existe deja en bdd
+     * 
+     * @var $email: la boite mail
+     * 
+     * @return bool
+     */
+    public static function verifyUniqueEmail($email) : bool
+    {
+        $db = Connect::getPDO();
+        $smt = $db->prepare("SELECT 1 FROM USER WHERE email = :email");
+        $smt->bindParam(":email", $email, \PDO::PARAM_STR);
+
+        if(!$smt->rowCount())
+        {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 
+     * Vérification si un mot de passe existe deja en bdd
+     * 
+     * @var $mdp: le mot de passe
+     * 
+     * @return bool
+     */
+    public static function verifyUniquePassword($mdp) : bool
+    {
+        $db = Connect::getPDO();
+        $smt = $db->prepare("SELECT 1 FROM USER WHERE mdp = :mdp");
+        $smt->bindParam(":mdp", $mdp, \PDO::PARAM_STR);
+
+        if($smt->rowCount() === 0)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Génération d'un mot de passe unique en bdd lors de l'inscription
+     * 
+     */
+    public static function generatePassword()
+    {
+        $key = "";
+        $alphanum = "abcdefghijklmnopqrstuvwxyz0123456789";
+        for ($i=0; $i<12; $i++)
+        {
+            $i == mt_rand(0,2) ? $tmp = $alphanum[mt_rand(0, 35)] : $tmp = "";
+            $i == 2 ? $key .= '$' : $i == mt_rand(4,6) ? $key .= "#^"  : $key .= $alphanum[mt_rand(0, 35)] . $tmp;
+        }
+        if (self::verifyUniquePassword($key))
+        {
+            /**
+             * Envoyer mdp par mail
+             * 
+             */
+            echo "$key\r\n";
+            return sha1($key);
+        }
+        return self::generatePassword();
+    }
+
+    /**
+     * 
      * Vérifie qu'un utlisateur est bien présent dans la base de données
      * 
-     * @param $email: la boite mail, $mdp: le mot de passe
+     * @var $email: la boite mail, $mdp: le mot de passe
      * 
      * @return int $id de l'utiliateur
      */
-    public static function isValidLogin($email, $mdp)
+    public static function isValidLogin($mdp) : int
     {
-        $id_user = null;
+        $id_user = 0;
         $db = Connect::getPDO();
 
-        $smt = $db->prepare("SELECT id FROM user WHERE email = :email AND mdp = :mdp");
-        $smt->bindValue("email", $email, \PDO::PARAM_STR);
-        $smt->bindValue("mdp", $mdp, \PDO::PARAM_STR);
+        $smt = $db->prepare("SELECT id FROM user WHERE mdp = :mdp");
+        $smt->bindValue("mdp", sha1($mdp), \PDO::PARAM_STR);
         $smt->execute();
         if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
         {
             $id_user = $row["id"];
         }
-
         return $id_user;
     }
 }

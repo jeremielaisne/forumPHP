@@ -1,1 +1,22 @@
 /* feuille de style personnalisé */
+
+@font-face{
+    font-family: 'Khand';
+    src: url('./../fonts/khand-medium.ttf');
+}
+
+body{
+    font-family: 'Khand','Courier New', Courier, monospace;
+    background-color: #000;
+    color: #fff;
+}
+
+#background_login{
+    background-image: url('./../img/dollars.gif');
+    background-repeat: no-repeat;
+    background-position-x: center;
+}
+
+#block_login{
+    margin-top: 400px;
+}

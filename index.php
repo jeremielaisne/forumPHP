@@ -23,9 +23,8 @@ $app->get("/logout", function(){
     header("Location: /");
 });
 
-$app->get("/home", function(){
-    require __DIR__ . "/controllers/home.php";
-    $pm->render('home.html.twig', ['title' => $title, 'description' => $description, 'cookie' => $cookie, 'firstname'=> $firstname, 'lastname' => $lastname, 'lastconnect' => $lastconnect]);
+$app->get("/recovery", function(){
+    echo "Recuperation mdp";
 });
 
 $app->get("/signup", function(){
@@ -36,6 +35,11 @@ $app->get("/signup", function(){
 $app->get("/404", function(){
     $pm = new PageMaker();
     $pm->render('404.html.twig', []);
+});
+
+$app->get("/home", function(){
+    require __DIR__ . "/controllers/home.php";
+    $pm->render('home.html.twig', ['title' => $title, 'description' => $description, 'cookie' => $cookie, 'firstname'=> $firstname, 'lastname' => $lastname, 'lastconnect' => $lastconnect]);
 });
 
 $app->run();
