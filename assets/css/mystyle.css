@@ -5,10 +5,35 @@
     src: url('./../fonts/khand-medium.ttf');
 }
 
-body{
+body, footer{
     font-family: 'Khand','Courier New', Courier, monospace;
     background-color: #000;
     color: #fff;
+}
+
+#footer{
+    position: absolute;
+    margin: 0;
+}
+
+input.error{
+    border: 3px inset red;
+}
+
+.border-3 {
+    border-width:3px !important;
+}
+
+#background_light{
+    background-color: #ddd;
+}
+
+.background_black_dark{
+    background-color: #111;
+}
+
+.background_black_light{
+    background-color: #333;
 }
 
 #background_login{
@@ -19,4 +44,18 @@ body{
 
 #block_login{
     margin-top: 400px;
+}
+
+.opacity-05{
+    opacity: .5;
+}
+
+.col-115px{
+    width: 115px;
+}
+
+#table_avatar table tr td:hover{
+    opacity: 1;
+	-webkit-transition: .3s ease-in-out;
+	transition: .3s ease-in-out;
 }

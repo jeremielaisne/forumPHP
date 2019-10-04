@@ -1,8 +1,11 @@
 {% extends 'templates/base.html.twig' %}
 {% block content %}
-<p>Bonjour {{ firstname }} {{ lastname }}</p>
-<p>Dernière connexion : {{ lastconnect|date('d/m/Y à H:i:s', '+01:00 GMT') }}</p>
-<p>Votre cookie : {{ cookie }}</p>
+<p>Bonjour {{ nickname }}</p>
+<p><img class="img-responsive border rounded border-3" src="./assets/img/avatars/{{ avatar }}_avatar.jpg" alt="avatar_{{ avatar }}" /></p>
+<p>{% if is_working == true %}Votre compte est actif{% else %}Votre compte est inactif. Un administrateur activera votre compte prochainement{% endif %}<p>
+<p>Dernière connexion : {{ lastconnect|date('d/m/Y à H:i:s') }}</p>
+<p>Niveau {{ level }}</p>
+<p>Nombre de message posté(s) : {{ nbpost }}</p>
 <br/>
 <a href="/logout">Se déconnecté</a>
 {% endblock %}

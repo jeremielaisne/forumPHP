@@ -2,6 +2,8 @@
 
 require_once(__DIR__ . "/vendor/autoload.php");
 
+define("COOKIE_NAME", "DurararaForum");
+
 /* Usage de variables $GET et $POST */
 function getURL($full = false)
 {
@@ -61,4 +63,17 @@ function unescapeFormVal($val)
     {
         return $val;
     }
+}
+function escape($val)
+{
+    return htmlspecialchars($val, ENT_QUOTES);
+}
+function verifyEmail($email)
+{
+    $pattern = "#^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$#";
+    if (preg_match($pattern, $email))
+    {
+        return true;
+    }
+    return false;
 }

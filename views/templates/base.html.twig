@@ -8,13 +8,14 @@
         <link rel="stylesheet" href="/assets/css/bootstrap431.min.css"/>
         <link rel="stylesheet" href="/assets/css/mystyle.css"/>
     </head>
-    <body id="{% block id_body %}{% endblock %}">
+    <body id="{% block id_body %}{% endblock %}" class="{% block class_body %}{% endblock %}">
+        {% block header %}{% endblock %}
         <main>
             {% block content %}
             {% endblock %}
         </main>
     </body>
-    <footer id="footer" class="w-100 fixed-bottom align-middle text-center">
+    <footer id="footer" class="w-100 mt-3 pt-3 text-center">
         <p>2019 - Copyright © Laisné Jérémie</p>
     </footer>
     <script src="/assets/js/jquery341.min.js"></script>

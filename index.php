@@ -1,7 +1,7 @@
 <?php
 
 use App\Cookie\UserCookie;
-use App\Cookie\PageMaker;
+use App\Page\PageMaker;
 
 require_once(__DIR__ . "/vendor/autoload.php");
 require_once("common.php");
@@ -15,7 +15,7 @@ $app = new App\Router\Router($url);
 
 $app->get("/", function(){
     require __DIR__ . "/controllers/login.php";
-    $pm->render('login.html.twig', ['title' => $title, 'description' => $description]);
+    return $pm->render('login.html.twig', ['title' => $title, 'description' => $description]);
 });
 
 $app->get("/logout", function(){
@@ -29,17 +29,17 @@ $app->get("/recovery", function(){
 
 $app->get("/signup", function(){
     require __DIR__ . "/controllers/signup.php";
-    $pm->render('signup.html.twig', ['title' => $title, 'description' => $description]);
+    return $pm->render('signup.html.twig', ['title' => $title, 'description' => $description, 'avatars' => $avatars]);
 });
 
 $app->get("/404", function(){
     $pm = new PageMaker();
-    $pm->render('404.html.twig', []);
+    return $pm->render('404.html.twig', []);
 });
 
 $app->get("/home", function(){
     require __DIR__ . "/controllers/home.php";
-    $pm->render('home.html.twig', ['title' => $title, 'description' => $description, 'cookie' => $cookie, 'firstname'=> $firstname, 'lastname' => $lastname, 'lastconnect' => $lastconnect]);
+    return $pm->render('home.html.twig', ['title' => $title, 'description' => $description, 'nickname'=> $nickname, 'nbpost' => $nbpost, 'avatar' => $avatar, 'level' => $level, 'is_working' => $is_working, 'lastconnect' => $lastconnect]);
 });
 
 $app->run();

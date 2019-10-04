@@ -1,22 +1,63 @@
 {% extends 'templates/base.html.twig' %}
+{% block class_body %}background_black_light{% endblock %}
+{% block header %}
+<header>
+    <nav class="navbar fixed-top background_black_dark">
+        <h3>Inscription / Sign Up</h3>
+    </nav>
+</header>
+{% endblock %}
 {% block content %}
-<p>Inscription</p>
-<form id="form_signup">
-    <div class="form-group">
-        <label for="firstname_signup">Nom</label>
-        <input type="text" name="firstname" id="firstname_signup" />
+<div class="mt-5 container">
+    <div class="pt-5 pb-5 row">
+        <div class="p-5 col-md-6 col-xs-12 offset-md-3 rounded bg-dark border border-3 border-light">
+            <form id="form_signup">
+                <div class="form-group">
+                    <label for="nickname_signup">Nickname* : </label>
+                    <input type="text" class="form-control" name="nickname" id="nickname_signup" />
+                    <p id="error_nickname" class="d-none"></p>
+                </div>
+                <div class="form-group">
+                    <label for="firstname_signup">Firstname : </label>
+                    <input type="text" class="form-control" name="firstname" id="firstname_signup" />
+                    <p id="error_firstname" class="d-none"></p>
+                </div>
+                <div class="form-group">
+                    <label for="lastname_signup">Lastname : </label>
+                    <input type="text" class="form-control" name="lastname" id="lastname_signup" />
+                    <p id="error_lastname" class="d-none"></p>
+                </div>
+                <div class="form-group">
+                    <label for="email_signup">Mail* : </label>
+                    <input type="email" class="form-control" name="email" id="email_signup" />
+                    <p id="error_email" class="d-none"></p>
+                </div>
+                <div class="form-group">
+                    <label for="avatar_signup">Avatar* : </label>
+                    <table class="col-auto m-3" id="table_avatar">
+                        <tr class="row">
+                        {% for i in 1..24 %}
+                            <td class="col-115px {% if i == 13 %}active{% endif %}">
+                                <img class="{% if i == 13 %}border-success{% else %}opacity-05 border-secondary{% endif %} img-responsive border rounded border-3" src="./assets/img/avatars/{{ i }}_avatar.jpg" alt="avatar_{{ i }}" data-id="{{ i }}" />
+                                <span class="{% if i != 13 %}opacity-05{% endif %} ml-2">{{ avatars[i-1] }}</span>
+                            </td>
+                            {% if i is divisible by(4) %}
+                            </tr>
+                            <tr class="row">
+                            {% endif %}
+                        {% endfor %}
+                        </tr>
+                        <span class="btn btn-danger w-100 mt-2" id="reduce_window_avatar">Reduce</span>
+                    </table>
+                    <input type="hidden" id="avatar_signup" name="avatar" value="13"/>
+                    <p id="error_avatar" class="d-none"></p>
+                </div>
+                <div class="form-group mt-5">
+                    <button class="btn btn-success">Confirm</button>
+                </div>
+            </form>
+            <p><a href="/">Return</a>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="lastname_signup">Prénom</label>
-        <input type="text" name="lastname" id="lastname_signup" />
-    </div>
-    <div class="form-group">
-        <label for="email_signup">Email</label>
-        <input type="email" name="email" id="email_signup" />
-    </div>
-    <div class="form-group">
-        <button>Valider</button>
-    </div>
-</form>
-<p><a href="/">Retour à l'accueil</a>
+</div>
 {% endblock %}

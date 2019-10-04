@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Cookie;
-require_once(dirname(__DIR__, 2) . "/vendor/autoload.php");
+namespace App\Page;
+
+use App\Cookie\UserCookie;
+
 require_once(dirname(__DIR__, 2) . "/common.php");
 
 class PageMaker
@@ -14,7 +16,7 @@ class PageMaker
     {
         $this->loader = new \Twig\Loader\FilesystemLoader('views');
         $this->twig = new \Twig\Environment($this->loader, [
-            'cache' => false,
+            'cache' => '/temp',
         ]);
         $this->usercookie = new UserCookie();
         return $this;

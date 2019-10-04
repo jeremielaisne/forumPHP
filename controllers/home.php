@@ -1,6 +1,6 @@
 <?php
 
-use App\Cookie\PageMaker;
+use App\Page\PageMaker;
 
 # Variables
 $title = "Home - Dollars Forum";
@@ -16,8 +16,10 @@ if ($pm->getUsercookie()->getIsConnect() == false)
 }
 else
 {
-    $cookie = $_COOKIE['testForumCookie'];
-    $firstname = $pm->getUsercookie()->getUser()->getFirstname();
-    $lastname = $pm->getUsercookie()->getUser()->getLastname();
+    $nickname = $pm->getUsercookie()->getUser()->getNickname();
     $lastconnect = $pm->getUsercookie()->getUser()->getUpdatedAt();
+    $nbpost = $pm->getUsercookie()->getUser()->getNbPost();
+    $avatar = $pm->getUsercookie()->getUser()->getAvatar();
+    $level = $pm->getUsercookie()->getUser()->getLvl();
+    $is_working = $pm->getUsercookie()->getUser()->getIsWorking();
 }

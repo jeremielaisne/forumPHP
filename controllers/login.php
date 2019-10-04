@@ -1,6 +1,6 @@
 <?php
 
-use App\Cookie\PageMaker;
+use App\Page\PageMaker;
 
 # Variables
 $title = "Connexion - Forum";

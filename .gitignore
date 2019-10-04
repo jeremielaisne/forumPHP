@@ -1,4 +1,5 @@
 vendor
 temp
+src/mailer/init.php
 phpunit.bat
 phpunit.xml

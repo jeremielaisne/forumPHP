@@ -11,7 +11,7 @@
 
     if (empty($mdp))
     {
-        $tab_req["error"]["mdp"] = "Vous devez saisir un mot de passe !";
+        $tab_req["error"]["mdp"] = "You must enter a password !";
     }
 
     if (empty($tab_req["error"]))
@@ -32,7 +32,7 @@
         }
         else
         {
-            $tab_req["error"]["mdp"] = "Votre mot de passe est incorrect !";
+            $tab_req["error"]["mdp"] = "You password is incorrect !";
         }
     }
 

@@ -3,40 +3,59 @@
 namespace App;
 
 use App\Database\Connect;
+use App\Mailer\Mailling;
 use DateTime;
-use phpDocumentor\Reflection\Types\Boolean;
-
-include(__DIR__ . "/db/Connect.php");
-
 /**
  * Création et gestion d'un utilisateur
  * 
  * @author Laisné Jérémie <laisne.jeremie83@gmail.com>
  */
-class User extends Connect{
+class User extends Connect {
 
     private $id;
+    private $nickname;
     private $firstname;
     private $lastname;
     private $email;
+    private $avatar;
+    private $statusc;
+    private $lvl;
     private $mdp;
     private $nbpost;
+    private $is_working;
     private $is_connect;
     private $created_at;
     private $updated_at;
 
-    function __construct($id = null, $firstname = null, $lastname = null, $email = null, $mdp = null, $nbpost = null, $is_connect = false, $created_at = null, $updated_at = null)
+    protected $db;
+
+    function __construct($id = null, $nickname = null, $firstname = null, $lastname = null, $email = null, $avatar = null, $statusc = 'INVITE', $lvl = 1, $mdp = null, $nbpost = null, $is_working = false, $is_connect = false, $created_at = null, $updated_at = null)
     {
         $this->id = $id;
+        $this->nickname = $nickname;
         $this->firstname = $firstname;
         $this->lastname = $lastname;
         $this->email = $email;
+        $this->avatar = $avatar;
+        $this->statusc = $statusc;
+        $this->lvl = $lvl;
         $this->mdp = $mdp;
         $this->nbpost = $nbpost;
+        $this->is_working = $is_working;
         $this->is_connect = $is_connect;
         $this->created_at = $created_at;
-        $this->updated_at = $updated_at; 
+        $this->updated_at = $updated_at;
+
+        $this->db = self::getPDO();
         return $this;
+    }
+
+    public function __destruct()
+    {
+        if (!empty($this->db))
+        {
+            self::destructPDO($this->db);
+        }
     }
 
     /* Getters et Setters */
@@ -50,7 +69,17 @@ class User extends Connect{
         $this->id = $id;
     }
 
-    function getFirstname() : String 
+    function getNickname() : String
+    {
+        return $this->nickname;
+    }
+
+    function setNickname($nickname) : void
+    {
+        $this->nickname = $nickname;
+    }
+
+    function getFirstname() : ?String 
     {
         return $this->firstname;
     }
@@ -60,7 +89,7 @@ class User extends Connect{
         $this->firstname = $firstname;
     }
 
-    function getLastname() : String 
+    function getLastname() : ?String 
     {
         return $this->lastname;
     }
@@ -80,6 +109,36 @@ class User extends Connect{
         $this->email = $email;
     }
 
+    function getAvatar() : int 
+    {
+        return $this->avatar;
+    }
+
+    function setAvatar($avatar) : void
+    {
+        $this->avatar = $avatar;
+    }
+
+    function getStatus() : String 
+    {
+        return $this->statusc;
+    }
+
+    function setStatus($statusc) : void
+    {
+        $this->statusc = $statusc;
+    }
+
+    function getLvl() : Int 
+    {
+        return $this->lvl;
+    }
+
+    function setLvl($lvl) : void
+    {
+        $this->lvl = $lvl;
+    }
+
     function getMdp() : String 
     {
         return $this->mdp;
@@ -88,6 +147,16 @@ class User extends Connect{
     function setMdp($mdp) : void
     {
         $this->mdp = $mdp;
+    }
+
+    function getIsWorking() : bool 
+    {
+        return $this->is_working;
+    }
+
+    function setIsWorking($is_working) : void
+    {
+        $this->is_working = $is_working;
     }
 
     function getIsConnect() : bool 
@@ -110,9 +179,13 @@ class User extends Connect{
         $this->nbpost = $nbpost;
     }
 
-    function getCreatedAt() : DateTime
+    function getCreatedAt() : ?DateTime
     {
-        return $this->created_at;
+        if ($this->updated_at != null)
+        {
+            return new DateTime($this->created_at);
+        }
+        return null;
     }
 
     function setCreatedAt($created_at) : void
@@ -120,19 +193,25 @@ class User extends Connect{
         $this->created_at = $created_at;
     }
 
-    function getUpdatedAt() : DateTime
+    function getUpdatedAt() : ?DateTime
     {
         if ($this->updated_at != null)
         {
-            return $this->updated_at;
+            return new DateTime($this->updated_at);
         }
-        return new DateTime();
+        return null;
     }
 
     function setUpdatedAt($updated_at) : void
     {
         $this->updated_at = $updated_at;
     }
+
+    public function getDB() : ?\PDO
+    {
+        return $this->db;
+    }
+
 
     /* Methodes */
 
@@ -143,14 +222,19 @@ class User extends Connect{
      */
     function load() : User
     {
-        $db = Connect::getPDO();
-        $smt = $db->prepare(
+        $smt = $this->db->prepare(
             "SELECT
                 id,
+                nickname,
                 firstname,
                 lastname,
                 email,
+                avatar,
+                statusc,
+                lvl,
+                mdp,
                 nbpost,
+                is_working,
                 is_connect,
                 created_at,
                 updated_at
@@ -159,15 +243,21 @@ class User extends Connect{
              WHERE
                 id = :id"
         );
-        $smt->bindValue("id", $this->id, \PDO::PARAM_INT);
+        $smt->bindValue(":id", $this->id, \PDO::PARAM_INT);
         $smt->execute();
         if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
         {   
             $this->id = $row["id"];
+            $this->nickname = $row["nickname"];
             $this->firstname = $row["firstname"];
             $this->lastname = $row["lastname"];
             $this->email = $row["email"];
+            $this->avatar = $row["avatar"];
+            $this->statusc = $row["statusc"];
+            $this->lvl = $row["lvl"];
+            $this->mdp = $row["mdp"];
             $this->nbpost = $row["nbpost"];
+            $this->is_working = $row["is_working"];
             $this->is_connect = $row["is_connect"];
             $this->created_at = $row["created_at"];
             $this->updated_at = $row["updated_at"];
@@ -183,9 +273,8 @@ class User extends Connect{
      */
     function isExist() : bool
     {
-        $db = Connect::getPDO();
-        $smt = $db->prepare("SELECT 1 FROM user WHERE id = :id");
-        $smt->bindParam("id", $this->id, \PDO::PARAM_INT);
+        $smt = $this->db->prepare("SELECT 1 FROM user WHERE id = :id");
+        $smt->bindValue(":id", $this->id, \PDO::PARAM_INT);
         $smt->execute();
         if ($smt->rowCount())
         {
@@ -202,35 +291,50 @@ class User extends Connect{
      */
     function create() : bool
     {
-        $db = Connect::getPDO();
-        $smt = $db->prepare(
+        $smt = $this->db->prepare(
             "INSERT INTO user(
+                nickname,
                 firstname,
                 lastname,
                 email,
+                avatar,
+                statusc,
+                lvl,
                 mdp,
                 nbpost,
+                is_working,
                 is_connect,
                 created_at
             ) VALUES (
+                :nickname,
                 :firstname,
                 :lastname,
                 :email,
+                :avatar,
+                :statusc,
+                :lvl,
                 :mdp,
                 :nbpost,
+                :is_working,
                 :is_connect,
                 NOW()
-            )"
-        );
-        $smt->bindValue("firstname", $this->firstname, \PDO::PARAM_STR);
-        $smt->bindValue("lastname", $this->lastname, \PDO::PARAM_STR);
-        $smt->bindValue("email", self::generatePassword(), \PDO::PARAM_STR);
-        $smt->bindValue("mdp", $this->mdp, \PDO::PARAM_STR);
-        $smt->bindValue("nbpost", 0, \PDO::PARAM_INT);
-        $smt->bindValue("is_connect", true, \PDO::PARAM_BOOL);
+        )");
+        $smt->bindValue(":nickname", $this->nickname, \PDO::PARAM_STR);
+        $smt->bindValue(":firstname", $this->firstname, \PDO::PARAM_STR);
+        $smt->bindValue(":lastname", $this->lastname, \PDO::PARAM_STR);
+        $smt->bindValue(":email", $this->email, \PDO::PARAM_STR);
+        $smt->bindValue(":avatar", $this->avatar, \PDO::PARAM_INT);
+        $smt->bindValue(":statusc", $this->statusc, \PDO::PARAM_STR);
+        $smt->bindValue(":lvl", $this->lvl, \PDO::PARAM_INT);
+        $smt->bindValue(":mdp", self::generatePassword(), \PDO::PARAM_STR);
+        $smt->bindValue(":nbpost", 0, \PDO::PARAM_INT);
+        $smt->bindValue(":is_working", false, \PDO::PARAM_BOOL);
+        $smt->bindValue(":is_connect", true, \PDO::PARAM_BOOL);
+        
         if($smt->execute())
         {
-            $this->id = $db->lastInsertId();
+            $this->id = $this->db->lastInsertId();
+            return true;
         }
         return false;
     }
@@ -242,29 +346,83 @@ class User extends Connect{
      */
     function update() : bool
     {
-        $db = Connect::getPDO();
-        $smt = $db->prepare(
+        $smt = $this->db->prepare(
             "UPDATE 
                 user 
             SET
+                nickname = :nickname,
                 firstname = :firstname,
                 lastname = :lastname,
-                mdp = :mdp,
                 email = :email,
+                avatar = :avatar,
+                statusc = :statusc,
+                lvl = :lvl,
                 nbpost = :nbpost,
+                is_working = :is_working,
                 is_connect = :is_connect,
                 updated_at = NOW()
             WHERE 
                 id = :id_user
         ");
-        $smt->bindValue("id_user", $this->id, \PDO::PARAM_INT);
-        $smt->bindValue("firstname", $this->firstname, \PDO::PARAM_STR);
-        $smt->bindValue("lastname", $this->lastname, \PDO::PARAM_STR);
-        $smt->bindValue("mdp", $this->mdp, \PDO::PARAM_STR);
-        $smt->bindValue("email", $this->email, \PDO::PARAM_STR);
-        $smt->bindValue("nbpost", $this->nbpost, \PDO::PARAM_INT);
-        $smt->bindValue("is_connect", $this->is_connect, \PDO::PARAM_BOOL);
+        $smt->bindValue(":id_user", $this->id, \PDO::PARAM_INT);
+        $smt->bindValue(":nickname", $this->nickname, \PDO::PARAM_STR);
+        $smt->bindValue(":firstname", $this->firstname, \PDO::PARAM_STR);
+        $smt->bindValue(":lastname", $this->lastname, \PDO::PARAM_STR);
+        $smt->bindValue(":email", $this->email, \PDO::PARAM_STR);
+        $smt->bindValue(":avatar", $this->avatar, \PDO::PARAM_INT);
+        $smt->bindValue(":statusc", $this->statusc, \PDO::PARAM_STR);
+        $smt->bindValue(":lvl", $this->lvl, \PDO::PARAM_INT);
+        $smt->bindValue(":nbpost", $this->nbpost, \PDO::PARAM_INT);
+        $smt->bindValue(":is_working", $this->is_working, \PDO::PARAM_BOOL);
+        $smt->bindValue(":is_connect", $this->is_connect, \PDO::PARAM_BOOL);
         if ($smt->execute())
+        {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Mis à jour d'un nouveau mot de passe pour l'utilisateur
+     * 
+     * @return bool
+     */
+    function updatePassword() : bool
+    {
+        $smt = $this->db->prepare(
+            "UPDATE 
+                user 
+            SET
+                mdp = :mdp,
+                updated_at = NOW()
+            WHERE 
+                id = :id_user
+        ");
+        $smt->bindValue(":id_user", $this->id, \PDO::PARAM_INT);
+        $smt->bindValue(":mdp", self::generatePassword(), \PDO::PARAM_STR);
+        if ($smt->execute())
+        {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 
+     * Vérification si un pseudonyme existe deja en bdd
+     * 
+     * @var $nickname: le pseudonyme
+     * 
+     * @return bool
+     */
+    public static function verifyUniqueNickname($nickname) : bool
+    {
+        $link = self::getPDO();
+        $smt = $link->prepare("SELECT 1 FROM USER WHERE nickname = :nickname");
+        $smt->bindValue(":nickname", $nickname, \PDO::PARAM_STR);
+        $smt->execute();
+
+        if($smt->rowCount() === 0)
         {
             return true;
         }
@@ -281,11 +439,12 @@ class User extends Connect{
      */
     public static function verifyUniqueEmail($email) : bool
     {
-        $db = Connect::getPDO();
-        $smt = $db->prepare("SELECT 1 FROM USER WHERE email = :email");
-        $smt->bindParam(":email", $email, \PDO::PARAM_STR);
+        $link = self::getPDO();
+        $smt = $link->prepare("SELECT 1 FROM USER WHERE email = :email");
+        $smt->bindValue(":email", $email, \PDO::PARAM_STR);
+        $smt->execute();
 
-        if(!$smt->rowCount())
+        if($smt->rowCount() === 0)
         {
             return true;
         }
@@ -302,15 +461,27 @@ class User extends Connect{
      */
     public static function verifyUniquePassword($mdp) : bool
     {
-        $db = Connect::getPDO();
-        $smt = $db->prepare("SELECT 1 FROM USER WHERE mdp = :mdp");
-        $smt->bindParam(":mdp", $mdp, \PDO::PARAM_STR);
+        $link = self::getPDO();
+        $smt = $link->prepare("SELECT 1 FROM USER WHERE mdp = :mdp");
+        $smt->bindValue(":mdp", $mdp, \PDO::PARAM_STR);
+        $smt->execute();
 
         if($smt->rowCount() === 0)
         {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Envoi d'un email lors de l'inscription
+     * 
+     */
+    public static function generateMail($key)
+    {
+        $mail = new Mailling();
+        $mail->setContent("Votre mot de passe : " . $key);
+        //return $mail->send();
     }
 
     /**
@@ -328,12 +499,11 @@ class User extends Connect{
         }
         if (self::verifyUniquePassword($key))
         {
-            /**
-             * Envoyer mdp par mail
-             * 
-             */
-            echo "$key\r\n";
-            return sha1($key);
+            if (self::generateMail($key))
+            {
+                return sha1($key);
+            }
+            return "ERROR_MAIL_" . $key;
         }
         return self::generatePassword();
     }
@@ -349,10 +519,10 @@ class User extends Connect{
     public static function isValidLogin($mdp) : int
     {
         $id_user = 0;
-        $db = Connect::getPDO();
 
-        $smt = $db->prepare("SELECT id FROM user WHERE mdp = :mdp");
-        $smt->bindValue("mdp", sha1($mdp), \PDO::PARAM_STR);
+        $link = self::getPDO();
+        $smt = $link->prepare("SELECT id FROM user WHERE mdp = :mdp");
+        $smt->bindValue(":mdp", sha1($mdp), \PDO::PARAM_STR);
         $smt->execute();
         if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
         {

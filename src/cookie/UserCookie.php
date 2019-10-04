@@ -1,11 +1,10 @@
 <?php
 
 namespace App\Cookie;
-require_once(dirname(__DIR__, 2) ."/vendor/autoload.php");
-require_once(dirname(__DIR__, 2) ."/common.php");
+
+require_once(dirname(__DIR__, 2) . "/common.php");
 
 use App\User;
-
 class UserCookie 
 {
     private $cookie;
@@ -40,9 +39,9 @@ class UserCookie
     
     public function init() 
     {
-        if (isset($_COOKIE["testForumCookie"]) && !empty($_COOKIE["testForumCookie"]))
+        if (isset($_COOKIE[COOKIE_NAME]) && !empty($_COOKIE[COOKIE_NAME]))
         {
-            $this->cookie = $_COOKIE["testForumCookie"];
+            $this->cookie = $_COOKIE[COOKIE_NAME];
             return $this->check();
         }
         return false;
@@ -83,7 +82,7 @@ class UserCookie
     public static function create($id)
     {
         $sha1key = self::keyUser($id);
-        return setcookie("testForumCookie", $id . '$' . $sha1key, time() + (30 * 24 * 3600), "/");
+        return setcookie(COOKIE_NAME, $id . '$' . $sha1key, time() + (30 * 24 * 3600), "/");
     }
 
     /**
@@ -92,8 +91,8 @@ class UserCookie
      */
     public static function erase() 
     {
-        setcookie("testForumCookie", "", time() - (30 * 24 * 3600), "/");
-        unset($_COOKIE['testForumCookie']);
+        setcookie(COOKIE_NAME, "", time() - (30 * 24 * 3600), "/");
+        unset($_COOKIE[COOKIE_NAME]);
     }
 
     /**
