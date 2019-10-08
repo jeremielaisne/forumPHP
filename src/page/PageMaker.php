@@ -16,7 +16,8 @@ class PageMaker
     {
         $this->loader = new \Twig\Loader\FilesystemLoader('views');
         $this->twig = new \Twig\Environment($this->loader, [
-            'cache' => '/temp',
+            //'cache' => './temp',
+            'cache' => false,
         ]);
         $this->usercookie = new UserCookie();
         return $this;

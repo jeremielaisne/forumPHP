@@ -8,6 +8,7 @@
                 <label for="login_mdp">PASSWORD : </label>
                 <input type="password" class="form-control-sm" name="login_mdp" id="login_mdp" />
                 <p id="error_mdp" class="d-none"></p>
+                {{ _csrf|raw }}
             </div>
             <div class="form-group">
                 <button class="btn btn-success pl-5 pr-5">Enter</button>

@@ -8,6 +8,7 @@
     $tab_req = ["state" => false, "error" => [], "fatalError" => ""];
 
     $mdp = (string) getFormVal("login_mdp");
+    $token = (string) getFormVal("_csrf");
 
     if (empty($mdp))
     {
@@ -24,11 +25,25 @@
             $user->setId($id_user);
             $user->load();
 
-            $user->update();
+            $user->setIp(getIp());
 
-            $user_cookie = UserCookie::create($id_user);
-            
-            $tab_req["state"] = true;
+            if (!isset($_SESSION))
+            {
+                session_start();
+            }
+
+            if (in_array($token, $_SESSION['csrf.tokens']))
+            {
+                $user->update();
+
+                $user_cookie = UserCookie::create($id_user);
+                
+                $tab_req["state"] = true;
+            }
+            else
+            {
+                $tab_req["fatalError"] = "You have a crsf error. Please contact the administrator";
+            }
         }
         else
         {

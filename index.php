@@ -15,7 +15,7 @@ $app = new App\Router\Router($url);
 
 $app->get("/", function(){
     require __DIR__ . "/controllers/login.php";
-    return $pm->render('login.html.twig', ['title' => $title, 'description' => $description]);
+    $pm->render('login.html.twig', ['title' => $title, 'description' => $description, '_csrf' => $input]);
 });
 
 $app->get("/logout", function(){
@@ -29,17 +29,17 @@ $app->get("/recovery", function(){
 
 $app->get("/signup", function(){
     require __DIR__ . "/controllers/signup.php";
-    return $pm->render('signup.html.twig', ['title' => $title, 'description' => $description, 'avatars' => $avatars]);
+    $pm->render('signup.html.twig', ['title' => $title, 'description' => $description, 'avatars' => $avatars, '_csrf' => $input]);
 });
 
 $app->get("/404", function(){
     $pm = new PageMaker();
-    return $pm->render('404.html.twig', []);
+    $pm->render('404.html.twig', []);
 });
 
 $app->get("/home", function(){
     require __DIR__ . "/controllers/home.php";
-    return $pm->render('home.html.twig', ['title' => $title, 'description' => $description, 'nickname'=> $nickname, 'nbpost' => $nbpost, 'avatar' => $avatar, 'level' => $level, 'is_working' => $is_working, 'lastconnect' => $lastconnect]);
+    $pm->render('home.html.twig', ['title' => $title, 'description' => $description, 'nickname'=> $nickname, 'nbpost' => $nbpost, 'avatar' => $avatar, 'level' => $level, 'is_working' => $is_working, 'lastconnect' => $lastconnect]);
 });
 
 $app->run();

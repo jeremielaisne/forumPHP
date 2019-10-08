@@ -26,6 +26,10 @@ function getURL($full = false)
     }
     return $val;
 }
+function getIp()
+{
+    return $_SERVER['REMOTE_ADDR'] . " : Port : " . $_SERVER['REMOTE_PORT'];
+}
 function getFormVal($name, $meth = null)
 {
     $val = NULL;

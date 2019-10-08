@@ -26,6 +26,7 @@ class User extends Connect {
     private $is_connect;
     private $created_at;
     private $updated_at;
+    private $ip;
 
     protected $db;
 
@@ -45,6 +46,7 @@ class User extends Connect {
         $this->is_connect = $is_connect;
         $this->created_at = $created_at;
         $this->updated_at = $updated_at;
+        $this->ip = "0.0.0.0";
 
         $this->db = self::getPDO();
         return $this;
@@ -207,6 +209,16 @@ class User extends Connect {
         $this->updated_at = $updated_at;
     }
 
+    function getIp() : string
+    {
+        return $this->ip;
+    }
+
+    function setIp(string $ip) : void
+    {
+        $this->ip = $ip;
+    }
+
     public function getDB() : ?\PDO
     {
         return $this->db;
@@ -237,7 +249,8 @@ class User extends Connect {
                 is_working,
                 is_connect,
                 created_at,
-                updated_at
+                updated_at,
+                ip
              FROM
                 user
              WHERE
@@ -261,6 +274,7 @@ class User extends Connect {
             $this->is_connect = $row["is_connect"];
             $this->created_at = $row["created_at"];
             $this->updated_at = $row["updated_at"];
+            $this->ip = $row["ip"];
         }
         return $this;
     }
@@ -304,6 +318,7 @@ class User extends Connect {
                 nbpost,
                 is_working,
                 is_connect,
+                ip,
                 created_at
             ) VALUES (
                 :nickname,
@@ -317,6 +332,7 @@ class User extends Connect {
                 :nbpost,
                 :is_working,
                 :is_connect,
+                :ip,
                 NOW()
         )");
         $smt->bindValue(":nickname", $this->nickname, \PDO::PARAM_STR);
@@ -330,6 +346,7 @@ class User extends Connect {
         $smt->bindValue(":nbpost", 0, \PDO::PARAM_INT);
         $smt->bindValue(":is_working", false, \PDO::PARAM_BOOL);
         $smt->bindValue(":is_connect", true, \PDO::PARAM_BOOL);
+        $smt->bindValue(":ip", $this->ip, \PDO::PARAM_STR);
         
         if($smt->execute())
         {
@@ -360,6 +377,7 @@ class User extends Connect {
                 nbpost = :nbpost,
                 is_working = :is_working,
                 is_connect = :is_connect,
+                ip = :ip,
                 updated_at = NOW()
             WHERE 
                 id = :id_user
@@ -375,6 +393,7 @@ class User extends Connect {
         $smt->bindValue(":nbpost", $this->nbpost, \PDO::PARAM_INT);
         $smt->bindValue(":is_working", $this->is_working, \PDO::PARAM_BOOL);
         $smt->bindValue(":is_connect", $this->is_connect, \PDO::PARAM_BOOL);
+        $smt->bindValue(":ip", $this->ip, \PDO::PARAM_STR);
         if ($smt->execute())
         {
             return true;

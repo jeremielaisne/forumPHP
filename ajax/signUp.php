@@ -12,6 +12,7 @@
     $lastname = (string) getFormVal("lastname");
     $email = (string) getFormVal("email");
     $avatar = (int) getFormVal("avatar");
+    $token = (string) getFormVal("_csrf");
 
     if (empty($nickname))
     {
@@ -138,11 +139,24 @@
         }
         $user->setAvatar($avatar);
         $user->setEmail(escape($email));
-
+        $user->setIp(getIp());
+        
         if($user->create())
         {
-            UserCookie::create($user->getId());
-            $tab_req["state"] = true;
+            if (!isset($_SESSION))
+            {
+                session_start();
+            }
+
+            if (in_array($token, $_SESSION['csrf.tokens']))
+            {
+                UserCookie::create($user->getId());
+                $tab_req["state"] = true;
+            }
+            else
+            {
+                $tab_req["fatalError"] = "You have a crsf error. Please contact the administrator";
+            }
         }
         else
         {
