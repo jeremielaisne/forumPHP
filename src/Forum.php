@@ -3,8 +3,8 @@
 namespace App;
 
 use App\Database\Connect;
+use DateTime;
 
-include(__DIR__ . "/db/Connect.php");
 /**
  * Création et gestion d'un utilisateur
  * 
@@ -14,39 +14,43 @@ class Forum extends Connect
 {
     private $id;
     private $name;
-    private $group;
-    private $author;
-    private $order;
+    private $active;
+    private $id_author;
+    private $orderc;
     private $nbTopic;
     private $nbTopicModeration;
     private $isDeleted;
     private $created_at;
     private $updated_at;
 
-    function __construct($id = null, $name = null, $group = null, $author = null, $order = null, $nbTopic = null, $nbTopicModeration = null, $isDeleted = null, $created_at = null, $updated_at = null)
+    protected $db;
+
+    function __construct(int $id = null, string $name = null, bool $active = null, int $id_author = null, int $orderc = null, int $nbTopic = 0, int $nbTopicModeration = 0, bool $isDeleted = false, datetime $created_at = null, datetime $updated_at = null)
     {
         $this->id = $id;
         $this->name = $name;
-        $this->group = $group;
-        $this->author = $author;
-        $this->order = $order;
+        $this->active = $active;
+        $this->id_author = $id_author;
+        $this->orderc = $orderc;
         $this->nbTopic = $nbTopic;
         $this->nbTopicModeration = $nbTopicModeration;
         $this->isDeleted = $isDeleted;
         $this->created_at = $created_at;
         $this->updated_at = $updated_at;
+
+        $this->db = self::getPDO();
         return $this;
     }
 
     /**
      * Getters et Setters
      */
-    function getId() : string
+    function getId() : int
     {
         return $this->id;
     }
 
-    function setId($id) : void
+    function setId(int $id) : void
     {
         $this->id = $id;
     }
@@ -56,39 +60,39 @@ class Forum extends Connect
         return $this->name;
     }
 
-    function setName($name) : void
+    function setName(string $name) : void
     {
         $this->name = $name;
     }
 
-    function getGr() : string
+    function getActive() : bool
     {
-        return $this->group;
+        return $this->active;
     }
 
-    function setGr($group) : void
+    function setActive(bool $active) : void
     {
-        $this->group = $group;
+        $this->active = $active;
     }
 
-    function getAuthor() : string
+    function getAuthor() : ?int
     {
-        return $this->author;
+        return $this->id_author;
     }
 
-    function setAuthor($author) : void
+    function setAuthor(int $id_author) : void
     {
-        $this->author = $author;
+        $this->id_author = $id_author;
     }
 
-    function getOrder() : int
+    function getOrderc() : int
     {
-        return $this->order;
+        return $this->orderc;
     }
 
-    function setOrder($order) : void
+    function setOrderc(int $orderc) : void
     {
-        $this->order = $order;
+        $this->orderc = $orderc;
     }
 
     function getNbTopic() : int
@@ -96,7 +100,7 @@ class Forum extends Connect
         return $this->nbTopic;
     }
 
-    function setNbTopic($nbTopic) : void
+    function setNbTopic(int $nbTopic) : void
     {
         $this->nbTopic = $nbTopic;
     }
@@ -106,7 +110,7 @@ class Forum extends Connect
         return $this->nbTopicModeration;
     }
 
-    function setNbTopicModeration($nbTopicModeration) : void
+    function setNbTopicModeration(int $nbTopicModeration) : void
     {
         $this->nbTopicModeration = $nbTopicModeration;
     }
@@ -116,27 +120,27 @@ class Forum extends Connect
         return $this->isDeleted;
     }
 
-    function setIsDeleted($isDeleted) : void
+    function setIsDeleted(bool $isDeleted) : void
     {
         $this->isDeleted = $isDeleted;
     }
 
-    function getCreatedAt() : bool
+    function getCreatedAt() : datetime
     {
         return $this->created_at;
     }
 
-    function setCreatedAt($created_at) : void
+    function setCreatedAt(datetime $created_at) : void
     {
         $this->created_at = $created_at;
     }
 
-    function getUpdatedAt() : bool
+    function getUpdatedAt() : ?datetime
     {
         return $this->updated_at;
     }
 
-    function setUpdatedAt($updated_at): void
+    function setUpdatedAt(datetime $updated_at): void
     {
         $this->updated_at = $updated_at;
     }
@@ -150,13 +154,12 @@ class Forum extends Connect
      */
     function load()
     {
-        $db = Connect::getPDO();
-        $smt = $db->prepare(
+        $smt = $this->db->prepare(
             "SELECT 
                 name,
-                group,
-                author,
-                order,
+                active,
+                id_author,
+                orderc,
                 nbTopic,
                 nbTopicModeration,
                 isDeleted,
@@ -165,13 +168,14 @@ class Forum extends Connect
                 Forum 
              WHERE 
                 id = :id");
-        $smt->bindParam("id", $this->id, \PDO::PARAM_INT);
+        $smt->bindValue("id", $this->id, \PDO::PARAM_INT);
         if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
         {
             $forum = new Forum;
             $forum->setId($this->id);
-            $forum->setAuthor($row["author"]);
-            $forum->setOrder($row["order"]);
+            $forum->setid_author($row["id_author"]);
+            $forum->setActive($row["active"]);
+            $forum->setorderc($row["orderc"]);
             $forum->setNbTopic($row["nbTopic"]);
             $forum->setNbTopicModeration($row["nbTopicModeration"]);
             $forum->setIsDeleted($row["isDeleted"]);
@@ -188,9 +192,8 @@ class Forum extends Connect
      */
     function isExist()
     {
-        $db = Connect::getPDO();
-        $smt = $db->prepare("SELECT 1 FROM Forum WHERE id = :id");
-        $smt->bindParam("id", $this->id, \PDO::PARAM_INT);
+        $smt = $this->db->prepare("SELECT 1 FROM Forum WHERE id = :id");
+        $smt->bindValue("id", $this->id, \PDO::PARAM_INT);
         if ($smt->rowCount())
         {
             return true;
@@ -205,37 +208,37 @@ class Forum extends Connect
      */
     function create()
     {
-        $db = Connect::getPDO();
-        $smt = $db->prepare(
-            "INSERT INTO Forum(
+        $smt = $this->db->prepare(
+            "INSERT INTO forum(
                 name,
-                group,
-                author,
-                order,
+                active,
+                id_author,
+                orderc,
                 nbTopic,
                 nbTopicModeration,
                 isDeleted,
                 created_at
-            VALUES(
+            )VALUES(
                 :name,
-                :group,
-                :author,
-                :order,
+                :active,
+                :id_author,
+                :orderc,
                 :nbTopic,
                 :nbTopicModeration,
                 :isDeleted,
                 NOW()
             )");
-        $smt->bindParam("name", $this->name, \PDO::PARAM_STR);
-        $smt->bindParam("group", $this->group, \PDO::PARAM_INT);
-        $smt->bindParam("author", $this->author, \PDO::PARAM_STR);
-        $smt->bindParam("order", $this->order, \PDO::PARAM_INT);
-        $smt->bindParam("nbTopic", $this->nbTopic, \PDO::PARAM_INT);
-        $smt->bindParam("nbTopicModeration", $this->nbTopicModeration, \PDO::PARAM_INT);
-        $smt->bindParam("isDeleted", $this->isDeleted, \PDO::PARAM_BOOL);
+        $smt->bindValue(":name", $this->name, \PDO::PARAM_STR);
+        $smt->bindValue(":active", $this->active, \PDO::PARAM_BOOL);
+        $smt->bindValue(":id_author", $this->id_author, \PDO::PARAM_INT);
+        $smt->bindValue(":orderc", $this->orderc, \PDO::PARAM_INT);
+        $smt->bindValue(":nbTopic", $this->nbTopic, \PDO::PARAM_INT);
+        $smt->bindValue(":nbTopicModeration", $this->nbTopicModeration, \PDO::PARAM_INT);
+        $smt->bindValue(":isDeleted", $this->isDeleted, \PDO::PARAM_BOOL);
+ 
         if($smt->execute())
         {
-            $this->id = $db->lastInsertId();
+            $this->id = $this->db->lastInsertId();
             return true;
         }
         return false;
@@ -248,7 +251,13 @@ class Forum extends Connect
      */
     function delete()
     {
-
+        $smt = $this->db->prepare("DELETE FROM forum WHERE id = :id");
+        $smt->bindValue(":id", $this->id, \PDO::PARAM_INT);
+        if($smt->execute())
+        {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -257,6 +266,34 @@ class Forum extends Connect
      */
     function update()
     {
-
+        $smt = $this->db->prepare(
+            "UPDATE 
+                forum 
+            SET 
+                name = :name,
+                active = :active,
+                id_author = :id_author,
+                orderc = :orderc,
+                nbTopic = :nbTopic,
+                nbTopicModeration = :nbTopicModeration,
+                isDeleted = :isDeleted,
+                updated_at = :updated_at
+            WHERE
+                id = :id
+        ");
+        $smt->bindValue(":id", $this->id, \PDO::PARAM_ID);
+        $smt->bindValue(":name", $this->name, \PDO::PARAM_NAME);
+        $smt->bindValue(":active", $this->active, \PDO::PARAM_BOOL);
+        $smt->bindValue(":id_author", $this->id_author, \PDO::PARAM_STR);
+        $smt->bindValue(":orderc", $this->orderc, \PDO::PARAM_INT);
+        $smt->bindValue(":nbTopic", $this->nbTopic, \PDO::PARAM_INT);
+        $smt->bindValue(":nbTopicModeration", $this->nbTopicModeration, \PDO::PARAM_INT);
+        $smt->bindValue(":isDeleted", $this->isDeleted, \PDO::PARAM_BOOL);
+        $smt->bindValue(":updated", NOW());
+        if ($smt->execute())
+        {
+            return true;
+        }
+        return false;
     }
 }
