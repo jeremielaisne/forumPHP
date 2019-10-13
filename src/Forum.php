@@ -125,24 +125,38 @@ class Forum extends Connect
         $this->isDeleted = $isDeleted;
     }
 
-    function getCreatedAt() : datetime
+    function getCreatedAt() : ?Datetime
     {
-        return $this->created_at;
+        if ($this->created_at != null)
+        {
+            return new DateTime($this->created_at);
+        }
+        return null;
     }
 
-    function setCreatedAt(datetime $created_at) : void
+    function setCreatedAt($created_at) : void
     {
         $this->created_at = $created_at;
     }
+    
 
-    function getUpdatedAt() : ?datetime
+    function getUpdatedAt() : ?Datetime
     {
-        return $this->updated_at;
+        if ($this->updated_at != null)
+        {
+            return new DateTime($this->updated_at);
+        }
+        return null;
     }
 
-    function setUpdatedAt(datetime $updated_at): void
+    function setUpdatedAt($updated_at): void
     {
         $this->updated_at = $updated_at;
+    }
+
+    public function getDB() : ?\PDO
+    {
+        return $this->db;
     }
 
     /*** Méthodes */
@@ -163,26 +177,27 @@ class Forum extends Connect
                 nbTopic,
                 nbTopicModeration,
                 isDeleted,
-                created_at
+                created_at,
+                updated_at
              FROM 
                 Forum 
              WHERE 
                 id = :id");
-        $smt->bindValue("id", $this->id, \PDO::PARAM_INT);
+        $smt->bindValue(":id", $this->getId(), \PDO::PARAM_INT);
+        $smt->execute();
         if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
         {
-            $forum = new Forum;
-            $forum->setId($this->id);
-            $forum->setid_author($row["id_author"]);
-            $forum->setActive($row["active"]);
-            $forum->setorderc($row["orderc"]);
-            $forum->setNbTopic($row["nbTopic"]);
-            $forum->setNbTopicModeration($row["nbTopicModeration"]);
-            $forum->setIsDeleted($row["isDeleted"]);
-            $forum->setCreatedAt($row["created_at"]);
-            $forum->setUpdatedAt($row["updated_at"]);
+            $this->setName($row["name"]);
+            $this->setAuthor($row["id_author"]);
+            $this->setActive($row["active"]);
+            $this->setorderc($row["orderc"]);
+            $this->setNbTopic($row["nbTopic"]);
+            $this->setNbTopicModeration($row["nbTopicModeration"]);
+            $this->setIsDeleted($row["isDeleted"]);
+            $this->setCreatedAt($row["created_at"]);
+            $this->setUpdatedAt($row["updated_at"]);
         }
-        return $forum;
+        return $this;
     }
 
     /**
@@ -192,8 +207,9 @@ class Forum extends Connect
      */
     function isExist()
     {
-        $smt = $this->db->prepare("SELECT 1 FROM Forum WHERE id = :id");
-        $smt->bindValue("id", $this->id, \PDO::PARAM_INT);
+        $smt = $this->db->prepare("SELECT 1 FROM forum WHERE id = :id");
+        $smt->bindValue("id", $this->getId(), \PDO::PARAM_INT);
+        $smt->execute();
         if ($smt->rowCount())
         {
             return true;
@@ -228,17 +244,16 @@ class Forum extends Connect
                 :isDeleted,
                 NOW()
             )");
-        $smt->bindValue(":name", $this->name, \PDO::PARAM_STR);
-        $smt->bindValue(":active", $this->active, \PDO::PARAM_BOOL);
-        $smt->bindValue(":id_author", $this->id_author, \PDO::PARAM_INT);
-        $smt->bindValue(":orderc", $this->orderc, \PDO::PARAM_INT);
-        $smt->bindValue(":nbTopic", $this->nbTopic, \PDO::PARAM_INT);
-        $smt->bindValue(":nbTopicModeration", $this->nbTopicModeration, \PDO::PARAM_INT);
-        $smt->bindValue(":isDeleted", $this->isDeleted, \PDO::PARAM_BOOL);
- 
+        $smt->bindValue(":name", $this->getName(), \PDO::PARAM_STR);
+        $smt->bindValue(":active", $this->getActive(), \PDO::PARAM_BOOL);
+        $smt->bindValue(":id_author", $this->getAuthor(), \PDO::PARAM_INT);
+        $smt->bindValue(":orderc", $this->getOrderc(), \PDO::PARAM_INT);
+        $smt->bindValue(":nbTopic", $this->getNbTopic(), \PDO::PARAM_INT);
+        $smt->bindValue(":nbTopicModeration", $this->getNbTopicModeration(), \PDO::PARAM_INT);
+        $smt->bindValue(":isDeleted", $this->getIsDeleted(), \PDO::PARAM_BOOL);
         if($smt->execute())
         {
-            $this->id = $this->db->lastInsertId();
+            $this->setId((int)$this->db->lastInsertId());
             return true;
         }
         return false;
@@ -252,7 +267,7 @@ class Forum extends Connect
     function delete()
     {
         $smt = $this->db->prepare("DELETE FROM forum WHERE id = :id");
-        $smt->bindValue(":id", $this->id, \PDO::PARAM_INT);
+        $smt->bindValue(":id", $this->getId(), \PDO::PARAM_INT);
         if($smt->execute())
         {
             return true;
@@ -277,19 +292,18 @@ class Forum extends Connect
                 nbTopic = :nbTopic,
                 nbTopicModeration = :nbTopicModeration,
                 isDeleted = :isDeleted,
-                updated_at = :updated_at
+                updated_at = NOW()
             WHERE
                 id = :id
         ");
-        $smt->bindValue(":id", $this->id, \PDO::PARAM_ID);
-        $smt->bindValue(":name", $this->name, \PDO::PARAM_NAME);
-        $smt->bindValue(":active", $this->active, \PDO::PARAM_BOOL);
-        $smt->bindValue(":id_author", $this->id_author, \PDO::PARAM_STR);
-        $smt->bindValue(":orderc", $this->orderc, \PDO::PARAM_INT);
-        $smt->bindValue(":nbTopic", $this->nbTopic, \PDO::PARAM_INT);
-        $smt->bindValue(":nbTopicModeration", $this->nbTopicModeration, \PDO::PARAM_INT);
-        $smt->bindValue(":isDeleted", $this->isDeleted, \PDO::PARAM_BOOL);
-        $smt->bindValue(":updated", NOW());
+        $smt->bindValue(":id", $this->getId(), \PDO::PARAM_INT);
+        $smt->bindValue(":name", $this->getName(), \PDO::PARAM_STR);
+        $smt->bindValue(":active", $this->getActive(), \PDO::PARAM_BOOL);
+        $smt->bindValue(":id_author", $this->getAuthor(), \PDO::PARAM_STR);
+        $smt->bindValue(":orderc", $this->getOrderc(), \PDO::PARAM_INT);
+        $smt->bindValue(":nbTopic", $this->getNbTopic(), \PDO::PARAM_INT);
+        $smt->bindValue(":nbTopicModeration", $this->getNbTopicModeration(), \PDO::PARAM_INT);
+        $smt->bindValue(":isDeleted", $this->getIsDeleted(), \PDO::PARAM_BOOL);
         if ($smt->execute())
         {
             return true;

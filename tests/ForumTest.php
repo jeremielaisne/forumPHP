@@ -10,6 +10,9 @@ use PHPUnit\Framework\TestCase;
 class ForumTest extends TestCase {
 
     protected $user;
+    protected $forum;
+    protected $topic;
+    protected $message;
 
     protected function setUp()
     {
@@ -17,13 +20,42 @@ class ForumTest extends TestCase {
         $this->user->setId(1);
         $this->user->load();
 
+        $this->forum = new Forum();
+        $this->topic = new Topic();
+        $this->message = new Message();
+
         return $this;    
     }
 
-    /**
-     * @test creation du forum
-     */
-    public function fixturesForum()
+    ##########
+    ## FORUM
+    ##########
+
+    private function getForum()
+    {
+        return $this->forum;
+    }
+
+    private function setForum($nb)
+    {
+        return $this->forum->setId($nb);
+    }
+
+    private function loadWithArgumentForum()
+    {
+        $loadforum = $this->forum->load();
+        $this->assertInstanceOf(Forum::class, $loadforum);
+        $this->setForum(1);
+        $loadforum = $this->forum->load();
+        $this->assertIsString($loadforum->getName());
+    }
+
+    private function isExistTrueForum()
+    {
+        $this->assertTrue($this->forum->isExist());
+    }
+    
+    private function fixturesForum()
     {
         $forum = new Forum();
         $forum->setName("Forum 1");
@@ -34,105 +66,32 @@ class ForumTest extends TestCase {
         $this->assertTrue($forum->create());
     }
 
-    /**
-     * @test creation du topic
-     */
-    public function fixturesTopic()
+    private function updateForum()
     {
-        $this->markTestIncomplete("TODO");
-
-        $topic = new Topic();
-        $topic->setName("Topic 1");
-        $topic->setNbView(15);
-        $topic->setNbMessage(15);
-        $topic->setNbMessageModerator(0);
-        $topic->setIsPin(false);
-        $topic->setIsLocked(false);
-        $topic->setIsDeleted(false);
-        $topic->setAuthor($this->user->getId());
-        $topic->lastAuthor($this->user->getId());
-        $forum = loadForum();
-        $topic->setForum($forum);
-
-        $this->assertTrue($topic->create());
-
-        $topic2 = new Topic();
-        $topic2->setName("Topic 2");
-        $topic2->setNbView(12);
-        $topic2->setNbMessage(16);
-        $topic2->setNbMessageModerator(0);
-        $topic2->setIsPin(false);
-        $topic2->setIsLocked(false);
-        $topic2->setIsDeleted(false);
-        $topic2->setAuthor($this->user->getId());
-        $topic2->lastAuthor($this->user->getId());
-        $topic2->setForum($forum);
-
-        $this->assertTrue($topic2->create());
+        $this->setForum(1);
+        $forum = $this->getForum()->load();
+        $forum->setOrderc(1);
+        $this->assertTrue($forum->update());
     }
 
     /**
-     * @test creation du message
+     * @test creation du forum
      */
-    public function fixturesMessage()
+    public function makeForum()
     {
-        $this->markTestIncomplete("TODO");
-
-        $message = new Message();
-        $message->setContent("Ceci est un message");
-        $message->setIsReported(false);
-        $message->setIsDeleted(false);
-        $message->setAuthor($this->user->getId());
-        $topic = loadTopic();
-        $message->setTopic($topic);
-
-        $this->assertTrue($message->create());
-
-        $message2 = new Message();
-        $message2->setContent("Ceci est un message reporté");
-        $message->setIsReported(true);
-        $message->setIsDeleted(false);
-        $message->setAuthor($this->user->getId());
-        $message->setTopic($topic);
-
-        $this->assertTrue($message2->create());
-
-        $message3 = new Message();
-        $message3->setContent("C'est le dernier message");
-        $message->setIsReported(false);
-        $message->setIsDeleted(false);
-        $message->setAuthor($this->user->getId());
-        $message->setTopic($topic);
-
-        $this->assertTrue($message3->create());
-    }
-
-    ##########
-    ## FORUM
-    ##########
-
-    private function makeForum()
-    {
-        return $this->getMockBuilder(Forum::class)->getMock();
-    }
-
-    private function loadForum()
-    {
-        $forum = $this->makeForum();
-        $forum->setId(1);
-        $forum->load();
-        return $forum;
-    }
-
-    /**
-     * @test si le forum existe
-     */
-    public function isExistForum()
-    {
-        $this->markTestIncomplete("TODO");
+        $this->setForum(1);
+        $this->getForum()->load();
         
-        $forum = $this->loadForum();
-        return $this->assertTrue($forum->isExist());
+        if (!$this->getForum()->isExist())
+        {
+            $this->fixturesForum();
+        }
+        else
+        {
+            $this->loadWithArgumentForum();
+            $this->isExistTrueForum();
+            $this->updateForum();
+        }
     }
 
     /**
@@ -202,30 +161,92 @@ class ForumTest extends TestCase {
     ## TOPIC
     ##########
 
-    private function makeTopic()
+    private function getTopic()
     {
-        $topic = $this->getMockBuilder(Topic::class)->getMock();
-        $topic->method('setForum')->willReturn($this->loadForum());
-        return $topic;
+        return $this->topic;
     }
 
-    private function loadTopic()
+    private function setTopic($nb)
     {
-        $forum = $this->makeTopic();
-        $forum->setId(1);
-        $forum->load();
-        return $forum;
+        $this->topic->setId($nb);
     }
 
-    /**
-     * @test si le topic existe
+    private function loadWithArgumentTopic()
+    {
+        $loadtopic = $this->topic->load();
+        $this->assertInstanceOf(Topic::class, $loadtopic);
+        $this->setTopic(1);
+        $loadtopic = $this->topic->load();
+        $this->assertIsString($loadtopic->getName());
+    }
+
+    private function isExistTrueTopic()
+    {
+        $this->assertTrue($this->topic->isExist());
+    }
+
+    private function fixturesTopics()
+    {
+        $this->setForum(1);
+        $this->getForum()->load();
+
+        $topic = new Topic();
+        $topic->setName("Topic 1");
+        $topic->setActive(true);
+        $topic->setNbView(15);
+        $topic->setNbMessage(15);
+        $topic->setNbMessageModerator(0);
+        $topic->setIsPin(false);
+        $topic->setIsLocked(false);
+        $topic->setIsDeleted(false);
+        $topic->setAuthor($this->user->getId());
+        $topic->setlastAuthor($this->user->getId());
+        $topic->setForum($this->getForum()->getId());
+
+        $this->assertTrue($topic->create());
+
+        $topic2 = new Topic();
+        $topic2->setName("Topic 2");
+        $topic2->setActive(true);
+        $topic2->setNbView(12);
+        $topic2->setNbMessage(16);
+        $topic2->setNbMessageModerator(0);
+        $topic2->setIsPin(false);
+        $topic2->setIsLocked(false);
+        $topic2->setIsDeleted(false);
+        $topic2->setAuthor($this->user->getId());
+        $topic2->setlastAuthor($this->user->getId());
+        $topic2->setForum($this->getForum()->getId());
+
+        $this->assertTrue($topic2->create());
+    }
+
+    private function updateTopic()
+    {
+        $this->setTopic(1);
+        $topic = $this->getTopic()->load();
+        $topic->setActive(False);
+        $this->assertTrue($topic->update());
+    }
+
+        /**
+     * @test creation du topic
      */
-    public function isExistTopic()
+    public function makeTopic()
     {
-        $this->markTestIncomplete("TODO");
-
-        $topic = $this->loadTopic();
-        return $this->assertTrue($topic->isExist());
+        $this->setTopic(1);
+        $this->getTopic()->load();
+        
+        if (!$this->getTopic()->isExist())
+        {
+            $this->fixturesTopics();
+        }
+        else
+        {
+            $this->loadWithArgumentTopic();
+            $this->isExistTrueTopic();
+            $this->updateTopic();
+        }
     }
 
     /**
@@ -292,30 +313,95 @@ class ForumTest extends TestCase {
     ## MESSAGES
     ############
     
-    private function makeMessage()
+    private function getMessage()
     {
-        $message = $this->getMockBuilder(Message::class)->getMock();
-        $message->method('setTopic')->willReturn($this->loadTopic());
-        return $message;
+        return $this->message;
     }
 
-    private function loadMessage()
+    private function setMessage($nb)
     {
-        $message = $this->makeMessage();
-        $message->setId(1);
-        $message->load();
-        return $message;
+        $this->message->setId($nb);
+    }
+
+    private function loadWithArgumentMessage()
+    {
+        $loadmessage = $this->message->load();
+        $this->assertInstanceOf(Message::class, $loadmessage);
+        $this->setMessage(1);
+        $loadmessage = $this->message->load();
+        $this->assertIsString($loadmessage->getName());
+    }
+
+    private function isExistTrueMessage()
+    {
+        $this->assertTrue($this->message->isExist());
+    }
+
+    private function fixturesMessages()
+    {
+        $this->setTopic(1);
+        $this->getTopic()->load();
+
+        $message = new Message();
+        $message->setContent("Ceci est un message");
+        $message->setIsReported(false);
+        $message->setIsDeleted(false);
+        $message->setAuthor($this->user->getId());
+        $message->setTopic($this->getTopic()->getId());
+
+        $this->assertTrue($message->create());
+
+        $this->setTopic(2);
+        $this->getTopic()->load();
+
+        $message2 = new Message();
+        $message2->setContent("Ceci est un message reporté");
+        $message2->setIsReported(true);
+        $message2->setIsDeleted(false);
+        $message2->setAuthor($this->user->getId());
+        $message2->setTopic($this->getTopic()->getId());
+
+        $this->assertTrue($message2->create());
+
+        $this->setTopic(1);
+        $this->getTopic()->load();
+
+        $message3 = new Message();
+        $message3->setContent("C'est le dernier message");
+        $message3->setIsReported(false);
+        $message3->setIsDeleted(false);
+        $message3->setAuthor($this->user->getId());
+        $message3->setTopic($this->getTopic()->getId());
+
+        $this->assertTrue($message3->create());
+    }
+
+    private function updateMessage()
+    {
+        $this->setMessage(2);
+        $message = $this->getMessage()->load();
+        $message->setContent("message reporté modifié...");
+        $this->assertTrue($message->update());
     }
 
     /**
-     * @test si le message existe
+     * @test creation d un message
      */
-    public function isExistMessage()
+    public function makeMessage()
     {
-        $this->markTestIncomplete("TODO");
-
-        $message = $this->loadMessage();
-        $this->assertTrue($message->isExist());
+        $this->setMessage(1);
+        $this->getMessage()->load();
+        
+        if (!$this->getMessage()->isExist())
+        {
+            $this->fixturesMessages();
+        }
+        else
+        {
+            $this->loadWithArgumentMessage();
+            $this->isExistTrueMessage();
+            $this->updateMessage();
+        }
     }
 
     /**
@@ -325,9 +411,9 @@ class ForumTest extends TestCase {
     {
         $this->markTestIncomplete("TODO");
 
-        $message = $this->loadMessage();
+        $message = $this->loadMessage(2);
         $position = $message->getPositionInTopic();
-        $this->assertEquals(1, $position);
+        $this->assertEquals(2, $position);
     }
 
     /**

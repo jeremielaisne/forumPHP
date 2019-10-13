@@ -260,21 +260,21 @@ class User extends Connect {
         $smt->execute();
         if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
         {   
-            $this->id = $row["id"];
-            $this->nickname = $row["nickname"];
-            $this->firstname = $row["firstname"];
-            $this->lastname = $row["lastname"];
-            $this->email = $row["email"];
-            $this->avatar = $row["avatar"];
-            $this->statusc = $row["statusc"];
-            $this->lvl = $row["lvl"];
-            $this->mdp = $row["mdp"];
-            $this->nbpost = $row["nbpost"];
-            $this->is_working = $row["is_working"];
-            $this->is_connect = $row["is_connect"];
-            $this->created_at = $row["created_at"];
-            $this->updated_at = $row["updated_at"];
-            $this->ip = $row["ip"];
+            $this->setId($row["id"]);
+            $this->setNickname($row["nickname"]);
+            $this->setFirstname($row["firstname"]);
+            $this->setLastname($row["lastname"]);
+            $this->setEmail($row["email"]);
+            $this->setAvatar($row["avatar"]);
+            $this->setStatus($row["statusc"]);
+            $this->setLvl($row["lvl"]);
+            $this->setMdp($row["mdp"]);
+            $this->setNbPost($row["nbpost"]);
+            $this->setIsWorking($row["is_working"]);
+            $this->setIsConnect($row["is_connect"]);
+            $this->setCreatedAt($row["created_at"]);
+            $this->setUpdatedAt($row["updated_at"]);
+            $this->setIp($row["ip"]);
         }
         return $this;
     }
