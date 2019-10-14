@@ -335,18 +335,18 @@ class User extends Connect {
                 :ip,
                 NOW()
         )");
-        $smt->bindValue(":nickname", $this->nickname, \PDO::PARAM_STR);
-        $smt->bindValue(":firstname", $this->firstname, \PDO::PARAM_STR);
-        $smt->bindValue(":lastname", $this->lastname, \PDO::PARAM_STR);
-        $smt->bindValue(":email", $this->email, \PDO::PARAM_STR);
-        $smt->bindValue(":avatar", $this->avatar, \PDO::PARAM_INT);
-        $smt->bindValue(":statusc", $this->statusc, \PDO::PARAM_STR);
-        $smt->bindValue(":lvl", $this->lvl, \PDO::PARAM_INT);
+        $smt->bindValue(":nickname", $this->getNickname(), \PDO::PARAM_STR);
+        $smt->bindValue(":firstname", $this->getFirstname(), \PDO::PARAM_STR);
+        $smt->bindValue(":lastname", $this->getLastname(), \PDO::PARAM_STR);
+        $smt->bindValue(":email", $this->getEmail(), \PDO::PARAM_STR);
+        $smt->bindValue(":avatar", $this->getAvatar(), \PDO::PARAM_INT);
+        $smt->bindValue(":statusc", $this->getStatus(), \PDO::PARAM_STR);
+        $smt->bindValue(":lvl", $this->getLvl(), \PDO::PARAM_INT);
         $smt->bindValue(":mdp", self::generatePassword(), \PDO::PARAM_STR);
         $smt->bindValue(":nbpost", 0, \PDO::PARAM_INT);
         $smt->bindValue(":is_working", false, \PDO::PARAM_BOOL);
         $smt->bindValue(":is_connect", true, \PDO::PARAM_BOOL);
-        $smt->bindValue(":ip", $this->ip, \PDO::PARAM_STR);
+        $smt->bindValue(":ip", $this->getIp(), \PDO::PARAM_STR);
         
         if($smt->execute())
         {
@@ -382,18 +382,18 @@ class User extends Connect {
             WHERE 
                 id = :id_user
         ");
-        $smt->bindValue(":id_user", $this->id, \PDO::PARAM_INT);
-        $smt->bindValue(":nickname", $this->nickname, \PDO::PARAM_STR);
-        $smt->bindValue(":firstname", $this->firstname, \PDO::PARAM_STR);
-        $smt->bindValue(":lastname", $this->lastname, \PDO::PARAM_STR);
-        $smt->bindValue(":email", $this->email, \PDO::PARAM_STR);
-        $smt->bindValue(":avatar", $this->avatar, \PDO::PARAM_INT);
-        $smt->bindValue(":statusc", $this->statusc, \PDO::PARAM_STR);
-        $smt->bindValue(":lvl", $this->lvl, \PDO::PARAM_INT);
-        $smt->bindValue(":nbpost", $this->nbpost, \PDO::PARAM_INT);
-        $smt->bindValue(":is_working", $this->is_working, \PDO::PARAM_BOOL);
-        $smt->bindValue(":is_connect", $this->is_connect, \PDO::PARAM_BOOL);
-        $smt->bindValue(":ip", $this->ip, \PDO::PARAM_STR);
+        $smt->bindValue(":id_user", $this->getId(), \PDO::PARAM_INT);
+        $smt->bindValue(":nickname", $this->getNickname(), \PDO::PARAM_STR);
+        $smt->bindValue(":firstname", $this->getFirstname(), \PDO::PARAM_STR);
+        $smt->bindValue(":lastname", $this->getLastname(), \PDO::PARAM_STR);
+        $smt->bindValue(":email", $this->getEmail(), \PDO::PARAM_STR);
+        $smt->bindValue(":avatar", $this->getAvatar(), \PDO::PARAM_INT);
+        $smt->bindValue(":statusc", $this->getStatus(), \PDO::PARAM_STR);
+        $smt->bindValue(":lvl", $this->getLvl(), \PDO::PARAM_INT);
+        $smt->bindValue(":nbpost", $this->getNbpost(), \PDO::PARAM_INT);
+        $smt->bindValue(":is_working", $this->getIsWorking(), \PDO::PARAM_BOOL);
+        $smt->bindValue(":is_connect", $this->getIsConnect(), \PDO::PARAM_BOOL);
+        $smt->bindValue(":ip", $this->getIp(), \PDO::PARAM_STR);
         if ($smt->execute())
         {
             return true;
@@ -548,5 +548,45 @@ class User extends Connect {
             $id_user = $row["id"];
         }
         return $id_user;
+    }
+
+    /**
+     * Affichage dans un tableau des personnes connectes
+     * 
+     * @return array
+     */
+    public static function getAllConnected() : ?array
+    {
+        $db = Connect::getPDO();
+        $smt = $db->prepare(
+            "SELECT
+                id,
+                nickname,
+                avatar,
+                nbpost,
+                statusc,
+                updated_at
+            FROM
+                user
+            WHERE
+                updated_at > (NOW() - INTERVAL 5 MINUTE)
+        "); 
+        $users = [];
+        if($smt->execute())
+        {
+            if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
+            {
+                $user = new User();
+                $user->setId($row["id"]);
+                $user->setNickname($row["nickname"]);
+                $user->setAvatar($row["avatar"]);
+                $user->setNbPost($row["nbpost"]);
+                $user->setStatus($row["statusc"]);
+                $user->setUpdatedAt($row["updated_at"]);
+                $users[$user->getId()] = $user;
+            }
+            return $users;
+        }
+        return null;
     }
 }

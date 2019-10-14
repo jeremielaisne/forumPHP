@@ -166,7 +166,7 @@ class Forum extends Connect
      * 
      * @return obj new Forum
      */
-    function load()
+    function load() : Forum
     {
         $smt = $this->db->prepare(
             "SELECT 
@@ -205,7 +205,7 @@ class Forum extends Connect
      * 
      * @return bool
      */
-    function isExist()
+    function isExist() : bool
     {
         $smt = $this->db->prepare("SELECT 1 FROM forum WHERE id = :id");
         $smt->bindValue("id", $this->getId(), \PDO::PARAM_INT);
@@ -222,7 +222,7 @@ class Forum extends Connect
      * 
      * @return bool
      */
-    function create()
+    function create() : bool
     {
         $smt = $this->db->prepare(
             "INSERT INTO forum(
@@ -264,7 +264,7 @@ class Forum extends Connect
      * 
      * @return bool
      */
-    function delete()
+    function delete() : bool
     {
         $smt = $this->db->prepare("DELETE FROM forum WHERE id = :id");
         $smt->bindValue(":id", $this->getId(), \PDO::PARAM_INT);
@@ -278,8 +278,9 @@ class Forum extends Connect
     /**
      * Mis à jour d'un forum
      * 
+     *  @return bool
      */
-    function update()
+    function update() : bool
     {
         $smt = $this->db->prepare(
             "UPDATE 
@@ -309,5 +310,132 @@ class Forum extends Connect
             return true;
         }
         return false;
+    }
+
+    /**
+     * Tableau de topics présents dans le forum 
+     * 
+     *  @return array
+     */
+    public static function getTopics($id_forum) : array
+    {
+        $db = Connect::getPDO();
+        $smt = $db->prepare(
+            "SELECT
+                id,
+                name,
+                active,
+                nb_view,
+                nb_message,
+                nb_message_moderator,
+                is_pin,
+                is_locked,
+                is_deleted,
+                id_forum,
+                id_author,
+                id_last_author,
+                created_at,
+                updated_at
+            FROM
+                topic
+            WHERE
+                id_forum = :id_forum"
+        );
+        $smt->bindValue(":id_forum", $id_forum, \PDO::PARAM_INT);
+        $smt->execute();
+        $topics = [];
+        if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
+        {
+            $topic = new Topic();
+            $topic->setId($row["id"]);
+            $topic->setName($row["name"]);
+            $topic->setActive($row["active"]);
+            $topic->setNbView($row["nb_view"]);
+            $topic->setNbMessage($row["nb_view"]);
+            $topic->setNbMessageModerator($row["nb_view"]);
+            $topic->setIsPin($row["is_pin"]);
+            $topic->setIsLocked($row["is_locked"]);
+            $topic->setIsDeleted($row["is_deleted"]);
+            $topic->setForum($row["id_forum"]);
+            $topic->setAuthor($row["id_author"]);
+            $topic->setLastAuthor($row["id_last_author"]);
+            $topic->setCreatedAt($row["created_at"]);
+            $topic->setUpdatedAt($row["updated_at"]);
+            $topics[$topic->getId()] = $topic;
+        }
+        return $topics;
+    }
+
+    /**
+     * Nombre de topics presents dans le forum
+     * 
+     *  @return int
+     */
+    public static function getNbTopics($id_forum) : ?int
+    {
+        $db = Connect::getPDO();
+        $smt = $db->prepare("SELECT id FROM topic WHERE id_forum = :id_forum");
+        $smt->bindValue(":id_forum", $id_forum, \PDO::FETCH_ASSOC);
+        if($smt->execute())
+        {
+            return $smt->rowCount();
+        }
+        return null;
+    }
+
+    /**
+     * Affichage d'un tableau de tous les forums existant
+     * 
+     *  @return array
+     */
+    public static function getAll() : array
+    {
+        $db = Connect::getPDO();
+        $smt = $db->prepare(
+            "SELECT
+                id,
+                name,
+                active,
+                id_author,
+                orderc,
+                nbTopic,
+                nbTopicModeration,
+                isDeleted,
+                created_at,
+                updated_at 
+            FROM 
+                forum");
+        $smt->execute();
+        $forums = [];
+        if($row = $smt->fetch(\PDO::FETCH_ASSOC))
+        {
+            $forum = new Forum();
+            $forum->setId($row["id"]);
+            $forum->setName($row["name"]);
+            $forum->setActive($row["active"]);
+            $forum->setAuthor($row["id_author"]);
+            $forum->setOrderc($row["orderc"]);
+            $forum->setNbTopic($row["nbTopic"]);
+            $forum->setNbTopicModeration($row["nbTopicModeration"]);
+            $forum->setIsDeleted($row["isDeleted"]);
+            $forum->setCreatedAt($row["created_at"]);
+            $forum->setUpdatedAt($row["updated_at"]);
+            $forums[$forum->getId()] = $forum; 
+        }
+        return $forums;
+    }
+
+    /**
+     * Affichage de l'url du forum
+     * 
+     *  @return string
+     */
+    public static function getUrl($id, $page = 1, $search = null) : string
+    {
+        if ($search == null)
+        {
+            return "forum/". $id. "/page-" . $page;
+        }
+        return "forum/". $id . "/page-" . $page . "?s=" . $search;
     }
 }

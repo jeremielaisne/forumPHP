@@ -99,12 +99,10 @@ class ForumTest extends TestCase {
      */
     public function getTopicsForum()
     {
-        $this->markTestIncomplete("TODO");
-
-        $forum = loadForum();
-        $id_forum = $forum->getId();
-        $tableau_topic = Forum::getTopics($id_forum);
-        $name_topic = $tableau_topic[0]->getName();
+        $this->setForum(1);
+        $forum = $this->getForum()->load();
+        $topics = Forum::getTopics($forum->getId());
+        $name_topic = $topics[1]->getName();
         $this->assertEquals("Topic 1", $name_topic);
     }
 
@@ -113,11 +111,9 @@ class ForumTest extends TestCase {
      */
     public function getNbTopicsForum()
     {
-        $this->markTestIncomplete("TODO");
-
-        $forum = loadForum();
-        $id_forum = $forum->getId();
-        $this->assertEquals(2, Forum::getnbTopics($id_forum));
+        $this->setForum(1);
+        $forum = $this->getForum()->load();
+        $this->assertEquals(2, Forum::getNbTopics($forum->getId()));
     }
 
     /**
@@ -125,24 +121,10 @@ class ForumTest extends TestCase {
      */
     public function getAllForums()
     {
-        $this->markTestIncomplete("TODO");
-
         $forums = Forum::getAll();
-        $forum_1 = $forums[0];
-        $id_forum_1 = $forum_1->getName();
-        $this->assertEquals("Topic 1", $id_forum_1);
-    }
-
-    /**
-     * @test affichage de toutes les personnes connectés
-     */
-    public function getAllConnected()
-    {
-        $this->markTestIncomplete("TODO");
-
-        $connected_users = Forum::getAllConnected();
-        $user_kickr = $connected_users[0];
-        $this->assertEquals("KickR", $user_kickr->getName());
+        $forum_1 = $forums[1];
+        $forum_1 = $forum_1->getName();
+        $this->assertEquals("Forum 1", $forum_1);
     }
 
     /**
@@ -150,11 +132,10 @@ class ForumTest extends TestCase {
      */
     public function getUrlForum()
     {
-        $this->markTestIncomplete("TODO");
-
-        $forum = loadForum();
-        $forum_url = $forum->getUrl();
-        $this->assertEquals("/forum-1", $forum_url);
+        $this->setForum(1);
+        $forum = $this->getForum()->load();
+        $forum_url = Forum::getUrl($forum->getId());
+        $this->assertEquals("forum/1/page-1", $forum_url);
     }
 
     ##########
@@ -229,7 +210,7 @@ class ForumTest extends TestCase {
         $this->assertTrue($topic->update());
     }
 
-        /**
+    /**
      * @test creation du topic
      */
     public function makeTopic()
@@ -256,8 +237,9 @@ class ForumTest extends TestCase {
     {
         $this->markTestIncomplete("TODO");
 
-        $topic = loadTopic();
-        $tableau_msg = $topic->getMessages();
+        $this->setTopic(1);
+        $topics = $this->getTopic()->load();
+        $tableau_msg = $topics->getMessages();
         $message_content = $tableau_msg[0]->getContent();
         $this->assertEquals("Ceci est un message", $message_content);
     }
@@ -304,9 +286,8 @@ class ForumTest extends TestCase {
     {
         $this->markTestIncomplete("TODO");
 
-        $topic = loadTopic();
-        $topic_url = $topic->getUrl();
-        $this->assertEquals("/forum-1/topic-1", $topic_url);
+        $topics_url = Topics::getUrl(0, "topic 1", 1, null);
+        $this->assertEquals("/forum/0/topic-1/page-1", $topics_url[0]);
     }
 
     ############
@@ -329,7 +310,7 @@ class ForumTest extends TestCase {
         $this->assertInstanceOf(Message::class, $loadmessage);
         $this->setMessage(1);
         $loadmessage = $this->message->load();
-        $this->assertIsString($loadmessage->getName());
+        $this->assertIsString($loadmessage->getContent());
     }
 
     private function isExistTrueMessage()

@@ -159,8 +159,8 @@ class Message extends Connect
             $this->setIsDeleted($row["is_deleted"]);
             $this->setAuthor($row["id_author"]);
             $this->setTopic($row["id_topic"]);
-            $this->setCreated($row["created_at"]);
-            $this->setUpdated($row["updated_at"]);
+            $this->setCreatedAt($row["created_at"]);
+            $this->setUpdatedAt($row["updated_at"]);
         }
         return $this;
     }

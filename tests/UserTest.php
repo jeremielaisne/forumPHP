@@ -108,4 +108,25 @@ class UserTest extends TestCase
         $this->markTestIncomplete("Email->send() desactive pour l'instant.. Parametre mailer fonctionne pas");
         $this->assertTrue(User::generateEmail("cleprive"));
     }
+
+    /**
+     * @test
+     */
+    public function updateUser()
+    {
+        $user = new User();
+        $user->setId(1);
+        $user->load();
+        $this->assertTrue($user->update());
+    }
+
+    /**
+     * @test affichage de toutes les personnes connectés
+     */
+    public function getAllConnected()
+    {
+        $connected_users = User::getAllConnected();
+        $user_one = $connected_users[1];
+        $this->assertEquals("KickR", $user_one->getNickname());
+    }
 }

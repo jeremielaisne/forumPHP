@@ -170,22 +170,22 @@ class Topic extends Connect{
     }
 
 
-    function getCreated() : ?DateTime
+    function getCreatedAt() : ?DateTime
     {
         return $this->created_at;
     }
 
-    function setCreated($created_at) : void
+    function setCreatedAt($created_at) : void
     {
         $this->created_at = $created_at;
     }
 
-    function getUpdated() : ?DateTime
+    function getUpdatedAt() : ?DateTime
     {
         return $this->updated_at;
     }
 
-    function setUpdated($updated_at) : void
+    function setUpdatedAt($updated_at) : void
     {
         $this->updated_at = $updated_at;
     }
@@ -235,8 +235,8 @@ class Topic extends Connect{
             $this->setForum($row["id_forum"]);
             $this->setAuthor($row["id_author"]);
             $this->setLastAuthor($row["id_last_author"]);
-            $this->setCreated($row["created_at"]);
-            $this->setUpdated($row["updated_at"]);
+            $this->setCreatedAt($row["created_at"]);
+            $this->setUpdatedAt($row["updated_at"]);
         }
         return $this;
     }
