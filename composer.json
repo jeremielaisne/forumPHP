@@ -8,7 +8,8 @@
         "twig/twig": "^2.11",
         "phpunit/phpunit": "^7.5",
         "phpmailer/phpmailer": "~6.1",
-        "psr/http-server-middleware": "^1.0"
+        "psr/http-server-middleware": "^1.0",
+        "cocur/slugify": "^3.2"
     },
     "description": "Forum hommage à l'anime Durarara!, il s'agit d'un essai pour m'entrainer au PHP",
     "autoload" : {

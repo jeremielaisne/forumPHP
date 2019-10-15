@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Database\Connect;
+use Cocur\Slugify\Slugify;
 use DateTime;
 
 class Topic extends Connect{
@@ -253,6 +254,11 @@ class Topic extends Connect{
         return false;
     }
 
+    /**
+     * Création d'un nouveau topic
+     * 
+     * @return bool
+     */
     public function create()
     {
         $smt = $this->db->prepare(
@@ -303,6 +309,11 @@ class Topic extends Connect{
         return false;
     }
 
+    /**
+     * Mis à jour d'un topic
+     * 
+     *  @return bool
+     */
     public function update()
     {
         $smt = $this->db->prepare(
@@ -342,5 +353,175 @@ class Topic extends Connect{
             return true;
         }
         return false;
+    }
+
+    /**
+     * Affichage des messages présent dans un topic un topic
+     * 
+     *  @return array
+     */
+    public static function getMessages($id_topic) : ?array
+    {
+        $db = Connect::getPDO();
+        $smt = $db->prepare(
+            "SELECT
+                id,
+                content,
+                is_reported,
+                is_deleted,
+                id_author,
+                id_topic,
+                created_at,
+                updated_at
+             FROM
+                Message
+             WHERE
+                id_topic = :id_topic
+        ");
+        $smt->bindValue(":id_topic", $id_topic, \PDO::PARAM_INT);
+        $messages = [];
+        if($smt->execute())
+        {
+            $i = 0;
+            while ($row = $smt->fetch(\PDO::FETCH_ASSOC))
+            {
+                $message = new Message();
+                $message->setId($row["id"]);
+                $message->setContent($row["content"]);
+                $message->setIsReported($row["is_reported"]);
+                $message->setIsDeleted($row["is_deleted"]);
+                $message->setAuthor($row["id_author"]);
+                $message->setTopic($row["id_topic"]);
+                $message->setCreatedAt($row["created_at"]);
+                $message->setUpdatedAt($row["updated_at"]);
+                $messages[$i] = $message;
+                $i++;
+            }
+            return $messages;
+        }
+        return null;
+    }
+
+    /**
+     * Retourne le nombre de messages d'un topic
+     * 
+     * @return int 
+     */
+    public static function getNbMessages($id_topic) : int
+    {
+        $db = Connect::getPDO();
+        $smt = $db->prepare("SELECT id FROM message WHERE id_topic = :id_topic");
+        $smt->bindValue(":id_topic", $id_topic, \PDO::PARAM_STR);
+        if ($smt->execute())
+        {
+            return $smt->rowCount();
+        }
+        return null;
+    }
+
+    /**
+     * Affichage du premier message d'un topic
+     * 
+     *  @return new Message
+     */
+    public static function getFirstMessage($id_topic) : ?Message
+    {
+        $db = Connect::getPDO();
+        $smt = $db->prepare(
+            "SELECT
+                id,
+                content,
+                is_reported,
+                is_deleted,
+                id_author,
+                id_topic,
+                created_at,
+                updated_at
+            FROM 
+                message 
+            WHERE 
+                id_topic = :id_topic 
+            ORDER BY id ASC
+            LIMIT 1
+            ");
+        $smt->bindValue(":id_topic", $id_topic, \PDO::PARAM_STR);
+        if ($smt->execute())
+        {
+            if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
+            {
+                $message = new Message();
+                $message->setId($row["id"]);
+                $message->setContent($row["content"]);
+                $message->setIsReported($row["is_reported"]);
+                $message->setIsDeleted($row["is_deleted"]);
+                $message->setAuthor($row["id_author"]);
+                $message->setTopic($row["id_topic"]);
+                $message->setCreatedAt($row["created_at"]);
+                $message->setUpdatedAt($row["updated_at"]);
+                return $message;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Affichage du premier message d'un topic
+     * 
+     *  @return new Message
+     */
+    public static function getLastMessage($id_topic) : ?Message
+    {
+        $db = Connect::getPDO();
+        $smt = $db->prepare(
+            "SELECT
+                id,
+                content,
+                is_reported,
+                is_deleted,
+                id_author,
+                id_topic,
+                created_at,
+                updated_at 
+            FROM 
+                message 
+            WHERE 
+                id_topic = :id_topic 
+            ORDER BY id DESC
+            LIMIT 1
+            ");
+        $smt->bindValue(":id_topic", $id_topic, \PDO::PARAM_STR);
+        if ($smt->execute())
+        {
+            if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
+            {
+                $message = new Message();
+                $message->setId($row["id"]);
+                $message->setContent($row["content"]);
+                $message->setIsReported($row["is_reported"]);
+                $message->setIsDeleted($row["is_deleted"]);
+                $message->setAuthor($row["id_author"]);
+                $message->setTopic($row["id_topic"]);
+                $message->setCreatedAt($row["created_at"]);
+                $message->setUpdatedAt($row["updated_at"]);
+                return $message;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Affichage de l'url du topic
+     * 
+     *  @return string
+     */
+    public static function getUrl($id, $name, $page = 1, $search = null) : string
+    {
+        $slugify = new Slugify();
+        $slug_name = $slugify->slugify($name);
+        if ($search == null)
+        {
+            return "forum/". $id. "/" . $slug_name . "/page-" . $page;
+        }
+        return "forum/". $id . "/" . $slug_name . "/page-" . $page . "?s=" . $search;
     }
 }

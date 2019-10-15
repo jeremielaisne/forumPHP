@@ -344,7 +344,8 @@ class Forum extends Connect
         $smt->bindValue(":id_forum", $id_forum, \PDO::PARAM_INT);
         $smt->execute();
         $topics = [];
-        if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
+        $i = 0;
+        while ($row = $smt->fetch(\PDO::FETCH_ASSOC))
         {
             $topic = new Topic();
             $topic->setId($row["id"]);
@@ -361,7 +362,8 @@ class Forum extends Connect
             $topic->setLastAuthor($row["id_last_author"]);
             $topic->setCreatedAt($row["created_at"]);
             $topic->setUpdatedAt($row["updated_at"]);
-            $topics[$topic->getId()] = $topic;
+            $topics[$i] = $topic;
+            $i++;
         }
         return $topics;
     }
@@ -407,7 +409,8 @@ class Forum extends Connect
                 forum");
         $smt->execute();
         $forums = [];
-        if($row = $smt->fetch(\PDO::FETCH_ASSOC))
+        $i = 0;
+        while ($row = $smt->fetch(\PDO::FETCH_ASSOC))
         {
             $forum = new Forum();
             $forum->setId($row["id"]);
@@ -420,7 +423,8 @@ class Forum extends Connect
             $forum->setIsDeleted($row["isDeleted"]);
             $forum->setCreatedAt($row["created_at"]);
             $forum->setUpdatedAt($row["updated_at"]);
-            $forums[$forum->getId()] = $forum; 
+            $forums[$i] = $forum; 
+            $i++;
         }
         return $forums;
     }

@@ -177,6 +177,11 @@ class Message extends Connect
         return false;
     }
 
+    /**
+     * Création d'un nouveau message
+     * 
+     * @return bool
+     */
     public function create()
     {
         $smt = $this->db->prepare(
@@ -209,6 +214,11 @@ class Message extends Connect
         return false;
     }
 
+    /**
+     * Mis-à-jour d'un nouveau message
+     * 
+     * @return bool
+     */
     public function update()
     {
         $smt = $this->db->prepare(
@@ -235,5 +245,84 @@ class Message extends Connect
             return true;
         }
         return false;
+    }
+
+    /**
+     * Retourner la position du message dans le topic. Utile pour la modération
+     * 
+     * @return int
+     */
+    public static function getPosition($id_topic, $id_msg) : ?int
+    {
+        $db = Connect::getPDO();
+        $smt = $db->prepare(
+            "SELECT
+                COUNT(*) as pos
+             FROM
+                message
+             WHERE
+                id_topic = :id_topic
+                AND
+                id <= :id_msg
+        ");
+        $smt->bindValue("id_topic", $id_topic, \PDO::PARAM_INT);
+        $smt->bindValue("id_msg", $id_msg, \PDO::PARAM_INT);
+        if($smt->execute())
+        {
+            if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
+            {
+                return $row["pos"];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Recherche de tous les messages qui sont signalés et non désactivé
+     * 
+     * @return array
+     */
+    public static function getReport()
+    {
+        $db = Connect::getPDO();
+        $smt = $db->prepare(
+            "SELECT
+                id,
+                content,
+                is_reported,
+                is_deleted,
+                id_author,
+                id_topic,
+                created_at,
+                updated_at
+            FROM
+                message
+            WHERE
+                is_reported = TRUE 
+                AND 
+                is_deleted = FALSE
+            "
+        );
+        $messages = [];
+        if ($smt->execute())
+        {
+            $i = 0;
+            while ($row = $smt->fetch(\PDO::FETCH_ASSOC))
+            {
+                $message = new Message();
+                $message->setId($row["id"]);
+                $message->setContent($row["content"]);
+                $message->setIsReported($row["is_reported"]);
+                $message->setIsDeleted($row["is_deleted"]);
+                $message->setAuthor($row["id_author"]);
+                $message->setTopic($row["id_topic"]);
+                $message->setCreatedAt($row["created_at"]);
+                $message->setUpdatedAt($row["updated_at"]);
+                $messages[$i] = $message;
+                $i++;
+            }
+            return $messages;
+        }
+        return null;
     }
 }

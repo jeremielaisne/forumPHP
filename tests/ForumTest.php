@@ -102,7 +102,7 @@ class ForumTest extends TestCase {
         $this->setForum(1);
         $forum = $this->getForum()->load();
         $topics = Forum::getTopics($forum->getId());
-        $name_topic = $topics[1]->getName();
+        $name_topic = $topics[0]->getName();
         $this->assertEquals("Topic 1", $name_topic);
     }
 
@@ -122,7 +122,7 @@ class ForumTest extends TestCase {
     public function getAllForums()
     {
         $forums = Forum::getAll();
-        $forum_1 = $forums[1];
+        $forum_1 = $forums[0];
         $forum_1 = $forum_1->getName();
         $this->assertEquals("Forum 1", $forum_1);
     }
@@ -235,12 +235,10 @@ class ForumTest extends TestCase {
      */
     public function getMessagesTopic()
     {
-        $this->markTestIncomplete("TODO");
-
         $this->setTopic(1);
-        $topics = $this->getTopic()->load();
-        $tableau_msg = $topics->getMessages();
-        $message_content = $tableau_msg[0]->getContent();
+        $topic = $this->getTopic()->load();
+        $messages = Topic::getMessages($topic->getId());
+        $message_content = $messages[0]->getContent();
         $this->assertEquals("Ceci est un message", $message_content);
     }
 
@@ -249,10 +247,12 @@ class ForumTest extends TestCase {
      */
     public function getNbMessagesTopic()
     {
-        $this->markTestIncomplete("TODO");
-
-        $topic = loadTopic();
-        $this->assertEquals(3, $topic->getnbMessages());
+        $this->setTopic(1);
+        $topic = $this->getTopic()->load();
+        $this->assertEquals(2, Topic::getnbMessages($topic->getId()));
+        $this->setTopic(2);
+        $topic = $this->getTopic()->load();
+        $this->assertEquals(1, Topic::getnbMessages($topic->getId()));
     }
 
     /**
@@ -260,10 +260,9 @@ class ForumTest extends TestCase {
      */
     public function getFirstMessageTopic()
     {
-        $this->markTestIncomplete("TODO");
-
-        $topic = loadTopic();
-        $msg = $topic->getFirstMessages();
+        $this->setTopic(1);
+        $topic = $this->getTopic()->load();
+        $msg = Topic::getFirstMessage($topic->getId());
         $this->assertEquals("Ceci est un message", $msg->getContent());
     }
 
@@ -272,10 +271,9 @@ class ForumTest extends TestCase {
      */
     public function getLastMessageTopic()
     {
-        $this->markTestIncomplete("TODO");
-
-        $topic = loadTopic();
-        $msg = $topic->getLastMessages();
+        $this->setTopic(1);
+        $topic = $this->getTopic()->load();
+        $msg = Topic::getLastMessage($topic->getId());
         $this->assertEquals("C'est le dernier message", $msg->getContent());
     }
 
@@ -284,10 +282,10 @@ class ForumTest extends TestCase {
      */
     public function getUrlTopic()
     {
-        $this->markTestIncomplete("TODO");
-
-        $topics_url = Topics::getUrl(0, "topic 1", 1, null);
-        $this->assertEquals("/forum/0/topic-1/page-1", $topics_url[0]);
+        $this->setTopic(1);
+        $topic = $this->getTopic()->load();
+        $topics_url = Topic::getUrl($topic->getId(), $topic->getName());
+        $this->assertEquals("forum/1/topic-1/page-1", $topics_url);
     }
 
     ############
@@ -390,21 +388,20 @@ class ForumTest extends TestCase {
      */
     public function getPositionInTopic()
     {
-        $this->markTestIncomplete("TODO");
-
-        $message = $this->loadMessage(2);
-        $position = $message->getPositionInTopic();
+        $this->setTopic(1);
+        $topic = $this->getTopic()->load();
+        $this->setMessage(3);
+        $message = $this->getMessage()->load();
+        $position = Message::getPosition($topic->getId(), $message->getId());
         $this->assertEquals(2, $position);
     }
 
     /**
      * @test recherche de tous les messages signalés et non supprimés
      */
-    public function getReport()
+    public function getReportInTopic()
     {
-        $this->markTestIncomplete("TODO");
-
         $report_messages = Message::getReport();
-        $this->assertEquals("Ceci est un message reporté", $report_messages[0]->getContent());
+        $this->assertEquals("message reporté modifié...", $report_messages[0]->getContent());
     }
 }
