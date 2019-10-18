@@ -1,11 +1,65 @@
 {% extends 'templates/base.html.twig' %}
+{% block header %}
+<nav class="navbar navbar-expend-lg navbar-light bg-light">
+    <span class="navbar-brand" href="#" />Durarara Forum - デュラララ!!</span>
+    <span class="block"></span>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="edit"><img class="img-responsive" src="./assets/img/avatars/{{ avatar }}_avatar.jpg" style="width: 50px;" alt="avatar_{{ avatar }}" /> Edit profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="logout">Logout</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="col-12 bg-secondary">
+    <div class="row">
+        <div class="col-md-7 col-12">
+            <div class="p-1">
+                <span class="pl-1 pr-2"> Bonjour</span>{{ nickname }} <span class="pl-4 pr-4"></span>
+                {% if is_working != true %}<span class="pl-4 pr-2"> - Votre compte est inactif. Un administrateur activera votre compte prochainement - </span>{% endif %}
+            </div>
+        </div>
+        <div class="col-md-5 col-12">
+            <div class="p-1">
+                <span>Niveau {{ level }}</span> | <span>Nombre de message posté(s) : {{ nbpost }}</span>
+                <span class="float-right">X</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 {% block content %}
-<p>Bonjour {{ nickname }}</p>
-<p><img class="img-responsive border rounded border-3" src="./assets/img/avatars/{{ avatar }}_avatar.jpg" alt="avatar_{{ avatar }}" /></p>
-<p>{% if is_working == true %}Votre compte est actif{% else %}Votre compte est inactif. Un administrateur activera votre compte prochainement{% endif %}<p>
-<p>Dernière connexion : {{ lastconnect|date('d/m/Y à H:i:s') }}</p>
-<p>Niveau {{ level }}</p>
-<p>Nombre de message posté(s) : {{ nbpost }}</p>
-<br/>
-<a href="/logout">Se déconnecté</a>
+<div class="container">
+    <div class="col-12 mt-5 mb-5 bg-primary">
+        <div class="row">
+            <table>
+                {% for forum in forums %}
+                <tbody>
+                    <tr class="col-md-12">
+                        <td>logo</td>
+                        <td>{{ forum.name }} par {{ forum.authorName }}</br><span>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</span></td>
+                        <td>{{ forum.nbTopic }} topics | nombre messages</td>
+                        <td>Dernier message</td>
+                    </tr>
+                </tbody>
+                {% endfor %}
+                <tfoot>
+                    <tr>
+                        <th>Qui est connecté ?</th>
+                    </tr>
+                    <tr>
+                        <td>Truc</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<a href="/logout">Logout</a>
 {% endblock %}

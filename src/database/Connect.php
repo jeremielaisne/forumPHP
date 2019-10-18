@@ -7,23 +7,26 @@ require_once(__DIR__ . "/init.php");
 
 abstract class Connect {
     
+    protected static $link = null;
     /**
      * Methode statique d'appel à la connexion
      */
     protected static function getPDO()
     {
-        $link = null;
         try
         {
-            $link = new \PDO("mysql:host=localhost;dbname=" . BDD , USER, MDP);
-            $link->exec("SET NAMES UTF8");
+            if (self::$link === null)
+            {
+                self::$link = new \PDO("mysql:host=localhost;dbname=" . BDD , USER, MDP);
+                self::$link->exec("SET NAMES UTF8");
+            }
         }
         catch(\PDOException $exep)
         {
             print("Erreur de connexion PDO : " . $exep->getMessage() . "</br>");
             die();
         }
-        return $link;
+        return self::$link;
     }
 
     protected static function destructPDO($link)

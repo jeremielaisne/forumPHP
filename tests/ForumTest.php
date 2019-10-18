@@ -123,8 +123,10 @@ class ForumTest extends TestCase {
     {
         $forums = Forum::getAll();
         $forum_1 = $forums[0];
-        $forum_1 = $forum_1->getName();
-        $this->assertEquals("Forum 1", $forum_1);
+        $forum_1_name = $forum_1->getName();
+        $forum_1_author_name = $forum_1->getAuthorName();
+        $this->assertEquals("Forum 1", $forum_1_name);
+        $this->assertEquals("KickR", $forum_1_author_name);
     }
 
     /**
@@ -159,6 +161,8 @@ class ForumTest extends TestCase {
         $this->setTopic(1);
         $loadtopic = $this->topic->load();
         $this->assertIsString($loadtopic->getName());
+        $topic_author_name = $loadtopic->getAuthorName();
+        $this->assertEquals("KickR", $topic_author_name);
     }
 
     private function isExistTrueTopic()

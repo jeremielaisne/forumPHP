@@ -19,13 +19,17 @@ class Topic extends Connect{
     private $is_deleted;
     private $id_forum;
     private $id_author;
+    private $name_author;
+    private $avatar_author;
     private $id_last_author;
+    private $name_last_author;
+    private $avatar_last_author;
     private $created_at;
     private $updated_at;
 
     protected $db;
 
-    function __construct($id = null, $name = null, $active = null, $nb_view = null, $nb_message = null, $nb_message_moderator = null, $is_pin = false, $is_locked = false, $is_deleted = null, $id_forum = null, $id_author = null, $id_last_author = null, $created_at = null, $updated_at = null)
+    function __construct($id = null, $name = null, $active = null, $nb_view = null, $nb_message = null, $nb_message_moderator = null, $is_pin = false, $is_locked = false, $is_deleted = null, $id_forum = null, $id_author = null, $name_author = null, $avatar_author = null, $id_last_author = null, $name_last_author = null, $avatar_last_author = null, $created_at = null, $updated_at = null)
     {
         $this->id = $id;
         $this->name = $name;
@@ -38,7 +42,11 @@ class Topic extends Connect{
         $this->is_deleted = $is_deleted;
         $this->id_forum = $id_forum;
         $this->id_author = $id_author;
+        $this->name_author = $name_author;
+        $this->avatar_author = $avatar_author;
         $this->id_last_author = $id_last_author;
+        $this->name_last_author = $name_last_author;
+        $this->avatar_last_author = $avatar_last_author; 
         $this->created_at = $created_at;
         $this->updated_at = $updated_at;
 
@@ -150,26 +158,65 @@ class Topic extends Connect{
         $this->id_forum = $id_forum;
     }
 
-    function getAuthor() : ?int
+    function getAuthorId() : ?int
     {
         return $this->id_author;
     }
 
-    function setAuthor(int $id_author) : void
+    function setAuthorId(int $id_author) : void
     {
         $this->id_author = $id_author;
     }
 
-    function getLastAuthor() : ?int
+    function getAuthorName() : ?string
+    {
+        return $this->name_author;
+    }
+
+    function setAuthorName(string $name_author) : void
+    {
+        $this->name_author = $name_author;
+    }
+
+    function getAuthorAvatar() : ?int
+    {
+        return $this->avatar_author;
+    }
+
+    function setAuthorAvatar(int $avatar_author) : void
+    {
+        $this->avatar_author = $avatar_author;
+    }
+
+    function getLastAuthorId() : ?int
     {
         return $this->id_last_author;
     }
 
-    function setLastAuthor(int $id_last_author) : void
+    function setLastAuthorId(int $id_last_author) : void
     {
         $this->id_last_author = $id_last_author;
     }
 
+    function getLastAuthorName() : ?string
+    {
+        return $this->name_author;
+    }
+
+    function setLastAuthorName(string $name_last_author) : void
+    {
+        $this->name_last_author = $name_last_author;
+    }
+
+    function getLastAuthorAvatar() : ?int
+    {
+        return $this->avatar_last_author;
+    }
+
+    function setLastAuthorAvatar(int $avatar_last_author) : void
+    {
+        $this->avatar_last_author = $avatar_last_author;
+    }
 
     function getCreatedAt() : ?DateTime
     {
@@ -203,23 +250,32 @@ class Topic extends Connect{
     {
         $smt = $this->db->prepare(
             "SELECT
-                name,
-                active,
-                nb_view,
-                nb_message,
-                nb_message_moderator,
-                is_pin,
-                is_locked,
-                is_deleted,
-                id_forum,
-                id_author,
-                id_last_author,
-                created_at,
-                updated_at
+                t.id as id,
+                t.name as name,
+                t.active as active,
+                t.nb_view as nb_view,
+                t.nb_message as nb_message,
+                t.nb_message_moderator as nb_message_moderator,
+                t.is_pin as is_pin,
+                t.is_locked as is_locked,
+                t.is_deleted as is_deleted,
+                t.id_forum as id_forum,
+                t.id_author as id_author,
+                a1.nickname as name_author,
+                a1.avatar as avatar_author,
+                t.id_last_author as id_last_author,
+                a2.nickname as name_last_author,
+                a2.avatar as avatar_last_author,
+                t.created_at as created_at,
+                t.updated_at as updated_at
              FROM
-                topic
+                topic AS t
+             JOIN 
+                user AS a1 ON a1.id = t.id_author
+             JOIN 
+                user AS a2 ON a2.id = t.id_last_author
              WHERE
-                id = :id"
+                t.id = :id"
         );
         $smt->bindValue(":id", $this->getId(), \PDO::PARAM_STR);
         $smt->execute();
@@ -234,8 +290,12 @@ class Topic extends Connect{
             $this->setIsLocked($row["is_locked"]);
             $this->setIsDeleted($row["is_deleted"]);
             $this->setForum($row["id_forum"]);
-            $this->setAuthor($row["id_author"]);
-            $this->setLastAuthor($row["id_last_author"]);
+            $this->setAuthorId($row["id_author"]);
+            $this->setAuthorName($row["name_author"]);
+            $this->setAuthorAvatar($row["avatar_author"]);
+            $this->setLastAuthorId($row["id_last_author"]);
+            $this->setLastAuthorName($row["name_last_author"]);
+            $this->setLastAuthorAvatar($row["avatar_last_author"]);
             $this->setCreatedAt($row["created_at"]);
             $this->setUpdatedAt($row["updated_at"]);
         }
@@ -298,8 +358,8 @@ class Topic extends Connect{
         $smt->bindValue(":is_locked", $this->getIsLocked(), \PDO::PARAM_BOOL);
         $smt->bindValue(":is_deleted", $this->getIsDeleted(), \PDO::PARAM_BOOL);
         $smt->bindValue(":id_forum", $this->getForum(), \PDO::PARAM_INT);
-        $smt->bindValue(":id_author", $this->getAuthor(), \PDO::PARAM_INT);
-        $smt->bindValue(":id_last_author", $this->getLastAuthor(), \PDO::PARAM_INT);
+        $smt->bindValue(":id_author", $this->getAuthorId(), \PDO::PARAM_INT);
+        $smt->bindValue(":id_last_author", $this->getLastAuthorId(), \PDO::PARAM_INT);
 
         if ($smt->execute())
         {
@@ -345,8 +405,8 @@ class Topic extends Connect{
         $smt->bindValue("is_locked", $this->getIsLocked(), \PDO::PARAM_BOOL);
         $smt->bindValue("is_deleted", $this->getIsDeleted(), \PDO::PARAM_BOOL);
         $smt->bindValue("id_forum", $this->getForum(), \PDO::PARAM_INT);
-        $smt->bindValue("id_author", $this->getAuthor(), \PDO::PARAM_INT);
-        $smt->bindValue("id_last_author", $this->getLastAuthor(), \PDO::PARAM_INT);
+        $smt->bindValue("id_author", $this->getAuthorId(), \PDO::PARAM_INT);
+        $smt->bindValue("id_last_author", $this->getLastAuthorId(), \PDO::PARAM_INT);
 
         if ($smt->execute())
         {

@@ -1,5 +1,6 @@
 <?php
 
+use App\Forum;
 use App\Page\PageMaker;
 
 # Variables
@@ -17,9 +18,10 @@ if ($pm->getUsercookie()->getIsConnect() == false)
 else
 {
     $nickname = $pm->getUsercookie()->getUser()->getNickname();
-    $lastconnect = $pm->getUsercookie()->getUser()->getUpdatedAt();
     $nbpost = $pm->getUsercookie()->getUser()->getNbPost();
     $avatar = $pm->getUsercookie()->getUser()->getAvatar();
     $level = $pm->getUsercookie()->getUser()->getLvl();
     $is_working = $pm->getUsercookie()->getUser()->getIsWorking();
+
+    $forums = Forum::getAll();
 }

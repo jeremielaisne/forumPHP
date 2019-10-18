@@ -16,6 +16,8 @@ class Forum extends Connect
     private $name;
     private $active;
     private $id_author;
+    private $name_author;
+    private $avatar_author;
     private $orderc;
     private $nbTopic;
     private $nbTopicModeration;
@@ -25,12 +27,14 @@ class Forum extends Connect
 
     protected $db;
 
-    function __construct(int $id = null, string $name = null, bool $active = null, int $id_author = null, int $orderc = null, int $nbTopic = 0, int $nbTopicModeration = 0, bool $isDeleted = false, datetime $created_at = null, datetime $updated_at = null)
+    function __construct(int $id = null, string $name = null, bool $active = null, int $id_author = null, string $name_author = null, string $avatar_author = null, int $orderc = null, int $nbTopic = 0, int $nbTopicModeration = 0, bool $isDeleted = false, datetime $created_at = null, datetime $updated_at = null)
     {
         $this->id = $id;
         $this->name = $name;
         $this->active = $active;
         $this->id_author = $id_author;
+        $this->name_author = $name_author;
+        $this->avatar_author = $avatar_author;
         $this->orderc = $orderc;
         $this->nbTopic = $nbTopic;
         $this->nbTopicModeration = $nbTopicModeration;
@@ -75,14 +79,34 @@ class Forum extends Connect
         $this->active = $active;
     }
 
-    function getAuthor() : ?int
+    function getAuthorId() : ?int
     {
         return $this->id_author;
     }
 
-    function setAuthor(int $id_author) : void
+    function setAuthorId(int $id_author) : void
     {
         $this->id_author = $id_author;
+    }
+
+    function getAuthorName() : ?string
+    {
+        return $this->name_author;
+    }
+
+    function setAuthorName(string $name_author) : void
+    {
+        $this->name_author = $name_author;
+    }
+
+    function getAuthorAvatar() : ?int
+    {
+        return $this->avatar_author;
+    }
+
+    function setAuthorAvatar(int $avatar_author) : void
+    {
+        $this->avatar_author = $avatar_author;
     }
 
     function getOrderc() : int
@@ -170,27 +194,33 @@ class Forum extends Connect
     {
         $smt = $this->db->prepare(
             "SELECT 
-                name,
-                active,
-                id_author,
-                orderc,
-                nbTopic,
-                nbTopicModeration,
-                isDeleted,
-                created_at,
-                updated_at
+                f.name AS name,
+                f.active AS active,
+                f.id_author AS id_author,
+                a.nickname AS name_author,
+                a.avatar AS avatar_author,
+                f.orderc AS orderc,
+                f.nbTopic AS nbTopic,
+                f.nbTopicModeration AS nbTopicModeration,
+                f.isDeleted AS isDeleted,
+                f.created_at AS created_at,
+                f.updated_at AS updated_at
              FROM 
-                Forum 
+                forum AS f
+             JOIN
+                user AS a ON a.id = f.id_author
              WHERE 
-                id = :id");
+                f.id = :id");
         $smt->bindValue(":id", $this->getId(), \PDO::PARAM_INT);
         $smt->execute();
         if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
         {
             $this->setName($row["name"]);
-            $this->setAuthor($row["id_author"]);
+            $this->setAuthorId($row["id_author"]);
+            $this->setAuthorName($row["name_author"]);
+            $this->setAuthorAvatar($row["avatar_author"]);
             $this->setActive($row["active"]);
-            $this->setorderc($row["orderc"]);
+            $this->setOrderc($row["orderc"]);
             $this->setNbTopic($row["nbTopic"]);
             $this->setNbTopicModeration($row["nbTopicModeration"]);
             $this->setIsDeleted($row["isDeleted"]);
@@ -246,7 +276,7 @@ class Forum extends Connect
             )");
         $smt->bindValue(":name", $this->getName(), \PDO::PARAM_STR);
         $smt->bindValue(":active", $this->getActive(), \PDO::PARAM_BOOL);
-        $smt->bindValue(":id_author", $this->getAuthor(), \PDO::PARAM_INT);
+        $smt->bindValue(":id_author", $this->getAuthorId(), \PDO::PARAM_INT);
         $smt->bindValue(":orderc", $this->getOrderc(), \PDO::PARAM_INT);
         $smt->bindValue(":nbTopic", $this->getNbTopic(), \PDO::PARAM_INT);
         $smt->bindValue(":nbTopicModeration", $this->getNbTopicModeration(), \PDO::PARAM_INT);
@@ -300,7 +330,7 @@ class Forum extends Connect
         $smt->bindValue(":id", $this->getId(), \PDO::PARAM_INT);
         $smt->bindValue(":name", $this->getName(), \PDO::PARAM_STR);
         $smt->bindValue(":active", $this->getActive(), \PDO::PARAM_BOOL);
-        $smt->bindValue(":id_author", $this->getAuthor(), \PDO::PARAM_STR);
+        $smt->bindValue(":id_author", $this->getAuthorId(), \PDO::PARAM_STR);
         $smt->bindValue(":orderc", $this->getOrderc(), \PDO::PARAM_INT);
         $smt->bindValue(":nbTopic", $this->getNbTopic(), \PDO::PARAM_INT);
         $smt->bindValue(":nbTopicModeration", $this->getNbTopicModeration(), \PDO::PARAM_INT);
@@ -322,22 +352,30 @@ class Forum extends Connect
         $db = Connect::getPDO();
         $smt = $db->prepare(
             "SELECT
-                id,
-                name,
-                active,
-                nb_view,
-                nb_message,
-                nb_message_moderator,
-                is_pin,
-                is_locked,
-                is_deleted,
-                id_forum,
-                id_author,
-                id_last_author,
-                created_at,
-                updated_at
+                t.id as id,
+                t.name as name,
+                t.active as active,
+                t.nb_view as nb_view,
+                t.nb_message as nb_message,
+                t.nb_message_moderator as nb_message_moderator,
+                t.is_pin as is_pin,
+                t.is_locked as is_locked,
+                t.is_deleted as is_deleted,
+                t.id_forum as id_forum,
+                t.id_author as id_author,
+                a1.nickname as name_author,
+                a1.avatar as avatar_author,
+                t.id_last_author as id_last_author,
+                a2.nickname as name_last_author,
+                a2.avatar as avatar_last_author,
+                t.created_at as created_at,
+                t.updated_at as updated_at
             FROM
-                topic
+                topic AS t
+            JOIN 
+                user AS a1 ON a1.id = t.id_author
+            JOIN 
+                user AS a2 ON a2.id = t.id_last_author
             WHERE
                 id_forum = :id_forum"
         );
@@ -358,8 +396,12 @@ class Forum extends Connect
             $topic->setIsLocked($row["is_locked"]);
             $topic->setIsDeleted($row["is_deleted"]);
             $topic->setForum($row["id_forum"]);
-            $topic->setAuthor($row["id_author"]);
-            $topic->setLastAuthor($row["id_last_author"]);
+            $topic->setAuthorId($row["id_author"]);
+            $topic->setAuthorName($row["name_author"]);
+            $topic->setAuthorAvatar($row["avatar_author"]);
+            $topic->setLastAuthorId($row["id_last_author"]);
+            $topic->setLastAuthorName($row["name_last_author"]);
+            $topic->setLastAuthorAvatar($row["avatar_last_author"]);
             $topic->setCreatedAt($row["created_at"]);
             $topic->setUpdatedAt($row["updated_at"]);
             $topics[$i] = $topic;
@@ -395,18 +437,22 @@ class Forum extends Connect
         $db = Connect::getPDO();
         $smt = $db->prepare(
             "SELECT
-                id,
-                name,
-                active,
-                id_author,
-                orderc,
-                nbTopic,
-                nbTopicModeration,
-                isDeleted,
-                created_at,
-                updated_at 
+                f.id as id,
+                f.name AS name,
+                f.active AS active,
+                f.id_author AS id_author,
+                a.nickname as name_author,
+                a.avatar as avatar_author,
+                f.orderc AS orderc,
+                f.nbTopic AS nbTopic,
+                f.nbTopicModeration AS nbTopicModeration,
+                f.isDeleted AS isDeleted,
+                f.created_at AS created_at,
+                f.updated_at AS updated_at
             FROM 
-                forum");
+                forum AS f
+            JOIN
+                user AS a ON a.id = f.id_author");
         $smt->execute();
         $forums = [];
         $i = 0;
@@ -415,9 +461,11 @@ class Forum extends Connect
             $forum = new Forum();
             $forum->setId($row["id"]);
             $forum->setName($row["name"]);
+            $forum->setAuthorId($row["id_author"]);
+            $forum->setAuthorName($row["name_author"]);
+            $forum->setAuthorAvatar($row["avatar_author"]);
             $forum->setActive($row["active"]);
-            $forum->setAuthor($row["id_author"]);
-            $forum->setOrderc($row["orderc"]);
+            $forum->setorderc($row["orderc"]);
             $forum->setNbTopic($row["nbTopic"]);
             $forum->setNbTopicModeration($row["nbTopicModeration"]);
             $forum->setIsDeleted($row["isDeleted"]);

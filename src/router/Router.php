@@ -2,10 +2,13 @@
 
 namespace App\Router;
 
+use Exception;
+
 class Router
 {
     private $url;
     private $routes = [];
+    private $namedRoutes = [];
 
     function __construct($url = null)
     {
@@ -13,17 +16,28 @@ class Router
         return $this;
     }
 
-    function get($path, $callable)
+    function get($path, $callable, $name = null)
     {
-        $route = new Route($path, $callable);
-        $this->routes['GET'][] = $route;
-        return $route;
+        return $this->add($path, $callable, $name, 'GET');
     }
 
-    function post($path, $callable)
+    function post($path, $callable, $name = null)
+    {
+        return $this->add($path, $callable, $name, 'POST');
+    }
+
+    function add($path, $callable, $name, $method)
     {
         $route = new Route($path, $callable);
-        $this->routes['POST'][] = $route;
+        $this->routes[$method][] = $route;
+        if (is_string($callable) && $name === null)
+        {
+            $name = $callable;
+        }
+        if ($name)
+        {
+            $this->namedRoutes[$name] = $route;
+        }
         return $route;
     }
 
@@ -51,5 +65,13 @@ class Router
         {   
             echo $r;
         }
+    }
+
+    function url($name, $params = [])
+    {
+        if(!isset($this->namedRoutes[$name])){
+            throw new RouteException("No route matches this name");
+        }
+        return $this->namedRoutes[$name]->getUrl($params);
     }
 }
