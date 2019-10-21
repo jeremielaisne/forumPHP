@@ -81,3 +81,87 @@ function verifyEmail($email)
     }
     return false;
 }
+function textDatetime($dt)
+{
+    $now = time();
+    $timestamp = strtotime($dt);
+    $diff = abs($now - $timestamp); //abs pour une valeur positive > 0
+    $yearstamp = 60*60*24*365;
+    $monthstamp = $yearstamp/30;
+    $daystamp = $yearstamp/365;
+    $hourstamp = $daystamp/24;
+    $minutestamp = $hourstamp/60;
+    $secondstamp = $minutestamp/60;
+
+    $res = "NULL";
+    
+    switch($diff){
+        case $diff < $minutestamp:
+            $second = floor($diff/$secondstamp);
+            if ($second == 1)
+            {
+                $res = "a second ago";
+            }
+            else
+            {
+                $res = $second . " seconds ago";
+            }
+            break;
+        case ($diff >= $minutestamp) && ($diff < $hourstamp):
+            $minute = floor($diff/$minutestamp);
+            if ($minute == 1)
+            {
+                $res = "a minute ago";
+            }
+            else
+            {
+                $res = $minute . " minutes ago";
+            }
+            break;
+        case ($diff >= $hourstamp) && ($diff < $daystamp):
+            $hour = floor($diff/$hourstamp);
+            if ($hour == 1)
+            {
+                $res = "a day ago";
+            }
+            else
+            {
+                $res = $hour . " days ago";
+            }
+            break;
+        case ($diff >= $daystamp) && ($diff < $monthstamp):
+            $day = floor($diff/$daystamp);
+            if ($day == 1)
+            {
+                $res = "a day ago";
+            }
+            else
+            {
+                $res = $day . " days ago";
+            }
+            break;
+        case ($diff >= $monthstamp) && ($diff < $yearstamp):
+            $month = floor($diff/$monthstamp);
+            if ($month == 1)
+            {
+                $res = "a month ago";
+            }
+            else
+            {
+                $res = $month . " months ago";
+            }
+            break;
+        case $diff >= $yearstamp:
+            $years = floor($diff/$yearstamp);
+            if ($years == 1)
+            {
+                $res = "a year ago";
+            }
+            else
+            {
+                $res = $years . " years ago";
+            }
+            break;
+    };
+    return $res;
+}

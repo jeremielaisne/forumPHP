@@ -97,4 +97,20 @@ $(document).ready( function() {
         $("#avatar_signup").attr('value',$(this).data("id"))
         $(this).parent().css('cursor', 'default');
     })
+    //HOME
+    $('#home_forum').DataTable({
+        "searching": false,
+        "paging": false,
+        "info": false,
+        "autoWidth": false,
+        "fnDrawCallback": function (oSettings) {
+            $(oSettings.nTHead).hide();
+        },
+        "columns": [
+            { "width": "10%" },
+            { "width": "50%" },
+            { "width": "10%" },
+            { "width": "30%" }
+        ]
+    });
 })

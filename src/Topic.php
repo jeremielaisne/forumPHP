@@ -18,6 +18,7 @@ class Topic extends Connect{
     private $is_locked;
     private $is_deleted;
     private $id_forum;
+    private $name_forum;
     private $id_author;
     private $name_author;
     private $avatar_author;
@@ -29,7 +30,7 @@ class Topic extends Connect{
 
     protected $db;
 
-    function __construct($id = null, $name = null, $active = null, $nb_view = null, $nb_message = null, $nb_message_moderator = null, $is_pin = false, $is_locked = false, $is_deleted = null, $id_forum = null, $id_author = null, $name_author = null, $avatar_author = null, $id_last_author = null, $name_last_author = null, $avatar_last_author = null, $created_at = null, $updated_at = null)
+    function __construct($id = null, $name = null, $active = null, $nb_view = null, $nb_message = null, $nb_message_moderator = null, $is_pin = false, $is_locked = false, $is_deleted = null, $id_forum = null, $name_forum = null, $id_author = null, $name_author = null, $avatar_author = null, $id_last_author = null, $name_last_author = null, $avatar_last_author = null, $created_at = null, $updated_at = null)
     {
         $this->id = $id;
         $this->name = $name;
@@ -41,6 +42,7 @@ class Topic extends Connect{
         $this->is_locked = $is_locked;
         $this->is_deleted = $is_deleted;
         $this->id_forum = $id_forum;
+        $this->name_forum = $name_forum;
         $this->id_author = $id_author;
         $this->name_author = $name_author;
         $this->avatar_author = $avatar_author;
@@ -148,14 +150,24 @@ class Topic extends Connect{
         $this->is_deleted = $is_deleted;
     }
 
-    function getForum() : int
+    function getForumId() : int
     {
         return $this->id_forum;
     }
 
-    function setForum(int $id_forum) : void
+    function setForumId(int $id_forum) : void
     {
         $this->id_forum = $id_forum;
+    }
+
+    function getForumName() : ?string
+    {
+        return $this->name_forum;
+    }
+
+    function setForumName(string $name_forum) : void
+    {
+        $this->name_forum = $name_forum;
     }
 
     function getAuthorId() : ?int
@@ -218,9 +230,13 @@ class Topic extends Connect{
         $this->avatar_last_author = $avatar_last_author;
     }
 
-    function getCreatedAt() : ?DateTime
+    function getCreatedAt()
     {
-        return $this->created_at;
+        if ($this->created_at != null)
+        {
+            return textDatetime($this->created_at);
+        }
+        return null;
     }
 
     function setCreatedAt($created_at) : void
@@ -260,6 +276,7 @@ class Topic extends Connect{
                 t.is_locked as is_locked,
                 t.is_deleted as is_deleted,
                 t.id_forum as id_forum,
+                f.name as name_forum,
                 t.id_author as id_author,
                 a1.nickname as name_author,
                 a1.avatar as avatar_author,
@@ -270,6 +287,8 @@ class Topic extends Connect{
                 t.updated_at as updated_at
              FROM
                 topic AS t
+             JOIN
+                forum AS f ON f.id = t.id_forum
              JOIN 
                 user AS a1 ON a1.id = t.id_author
              JOIN 
@@ -289,7 +308,8 @@ class Topic extends Connect{
             $this->setIsPin($row["is_pin"]);
             $this->setIsLocked($row["is_locked"]);
             $this->setIsDeleted($row["is_deleted"]);
-            $this->setForum($row["id_forum"]);
+            $this->setForumId($row["id_forum"]);
+            $this->setForumName($row["name_forum"]);
             $this->setAuthorId($row["id_author"]);
             $this->setAuthorName($row["name_author"]);
             $this->setAuthorAvatar($row["avatar_author"]);
@@ -357,7 +377,7 @@ class Topic extends Connect{
         $smt->bindValue(":is_pin", $this->getIsPin(), \PDO::PARAM_BOOL);
         $smt->bindValue(":is_locked", $this->getIsLocked(), \PDO::PARAM_BOOL);
         $smt->bindValue(":is_deleted", $this->getIsDeleted(), \PDO::PARAM_BOOL);
-        $smt->bindValue(":id_forum", $this->getForum(), \PDO::PARAM_INT);
+        $smt->bindValue(":id_forum", $this->getForumId(), \PDO::PARAM_INT);
         $smt->bindValue(":id_author", $this->getAuthorId(), \PDO::PARAM_INT);
         $smt->bindValue(":id_last_author", $this->getLastAuthorId(), \PDO::PARAM_INT);
 
@@ -404,7 +424,7 @@ class Topic extends Connect{
         $smt->bindValue("is_pin", $this->getIsPin(), \PDO::PARAM_BOOL);
         $smt->bindValue("is_locked", $this->getIsLocked(), \PDO::PARAM_BOOL);
         $smt->bindValue("is_deleted", $this->getIsDeleted(), \PDO::PARAM_BOOL);
-        $smt->bindValue("id_forum", $this->getForum(), \PDO::PARAM_INT);
+        $smt->bindValue("id_forum", $this->getForumId(), \PDO::PARAM_INT);
         $smt->bindValue("id_author", $this->getAuthorId(), \PDO::PARAM_INT);
         $smt->bindValue("id_last_author", $this->getLastAuthorId(), \PDO::PARAM_INT);
 
@@ -416,7 +436,7 @@ class Topic extends Connect{
     }
 
     /**
-     * Affichage des messages présent dans un topic un topic
+     * Affichage des messages présent dans un topic
      * 
      *  @return array
      */
@@ -425,18 +445,25 @@ class Topic extends Connect{
         $db = Connect::getPDO();
         $smt = $db->prepare(
             "SELECT
-                id,
-                content,
-                is_reported,
-                is_deleted,
-                id_author,
-                id_topic,
-                created_at,
-                updated_at
+                m.id as id,
+                m.content as content,
+                m.is_reported as is_reported,
+                m.is_deleted as is_deleted,
+                m.id_author as id_author,
+                a.nickname as name_author,
+                a.avatar as avatar_author,
+                m.id_topic as id_topic,
+                t.name as name_topic,
+                m.created_at as created_at,
+                m.updated_at as updated_at
              FROM
-                Message
+                message AS m
+             JOIN
+                user AS a ON a.id = m.id_author
+             JOIN
+                topic AS t ON t.id = m.id_topic
              WHERE
-                id_topic = :id_topic
+                m.id_topic = :id_topic
         ");
         $smt->bindValue(":id_topic", $id_topic, \PDO::PARAM_INT);
         $messages = [];
@@ -446,12 +473,15 @@ class Topic extends Connect{
             while ($row = $smt->fetch(\PDO::FETCH_ASSOC))
             {
                 $message = new Message();
-                $message->setId($row["id"]);
+                $message->setId($row["id"]);    
                 $message->setContent($row["content"]);
                 $message->setIsReported($row["is_reported"]);
                 $message->setIsDeleted($row["is_deleted"]);
-                $message->setAuthor($row["id_author"]);
-                $message->setTopic($row["id_topic"]);
+                $message->setAuthorId($row["id_author"]);
+                $message->setAuthorName($row["name_author"]);
+                $message->setAuthorAvatar($row["avatar_author"]);
+                $message->setTopicId($row["id_topic"]);
+                $message->setTopicName($row["name_topic"]);
                 $message->setCreatedAt($row["created_at"]);
                 $message->setUpdatedAt($row["updated_at"]);
                 $messages[$i] = $message;
@@ -489,20 +519,28 @@ class Topic extends Connect{
         $db = Connect::getPDO();
         $smt = $db->prepare(
             "SELECT
-                id,
-                content,
-                is_reported,
-                is_deleted,
-                id_author,
-                id_topic,
-                created_at,
-                updated_at
-            FROM 
-                message 
-            WHERE 
-                id_topic = :id_topic 
-            ORDER BY id ASC
-            LIMIT 1
+                m.id as id,
+                m.content as content,
+                m.is_reported as is_reported,
+                m.is_deleted as is_deleted,
+                m.id_author as id_author,
+                a.nickname as name_author,
+                a.avatar as avatar_author,
+                m.id_topic as id_topic,
+                t.name as name_topic,
+                m.created_at as created_at,
+                m.updated_at as updated_at
+             FROM
+                message AS m
+             JOIN
+                user AS a ON a.id = m.id_author
+             JOIN
+                topic AS t ON t.id = m.id_topic
+             WHERE
+                m.id_topic = :id_topic 
+             ORDER BY 
+                m.id ASC
+             LIMIT 1
             ");
         $smt->bindValue(":id_topic", $id_topic, \PDO::PARAM_STR);
         if ($smt->execute())
@@ -510,12 +548,15 @@ class Topic extends Connect{
             if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
             {
                 $message = new Message();
-                $message->setId($row["id"]);
+                $message->setId($row["id"]);    
                 $message->setContent($row["content"]);
                 $message->setIsReported($row["is_reported"]);
                 $message->setIsDeleted($row["is_deleted"]);
-                $message->setAuthor($row["id_author"]);
-                $message->setTopic($row["id_topic"]);
+                $message->setAuthorId($row["id_author"]);
+                $message->setAuthorName($row["name_author"]);
+                $message->setAuthorAvatar($row["avatar_author"]);
+                $message->setTopicId($row["id_topic"]);
+                $message->setTopicName($row["name_topic"]);
                 $message->setCreatedAt($row["created_at"]);
                 $message->setUpdatedAt($row["updated_at"]);
                 return $message;
@@ -525,7 +566,7 @@ class Topic extends Connect{
     }
 
     /**
-     * Affichage du premier message d'un topic
+     * Affichage du dernier message d'un topic
      * 
      *  @return new Message
      */
@@ -534,20 +575,28 @@ class Topic extends Connect{
         $db = Connect::getPDO();
         $smt = $db->prepare(
             "SELECT
-                id,
-                content,
-                is_reported,
-                is_deleted,
-                id_author,
-                id_topic,
-                created_at,
-                updated_at 
-            FROM 
-                message 
-            WHERE 
-                id_topic = :id_topic 
-            ORDER BY id DESC
-            LIMIT 1
+                m.id as id,
+                m.content as content,
+                m.is_reported as is_reported,
+                m.is_deleted as is_deleted,
+                m.id_author as id_author,
+                a.nickname as name_author,
+                a.avatar as avatar_author,
+                m.id_topic as id_topic,
+                t.name as name_topic,
+                m.created_at as created_at,
+                m.updated_at as updated_at
+             FROM
+                message AS m
+             JOIN
+                user AS a ON a.id = m.id_author
+             JOIN
+                topic AS t ON t.id = m.id_topic
+             WHERE
+                m.id_topic = :id_topic
+             ORDER BY 
+                m.id DESC
+             LIMIT 1
             ");
         $smt->bindValue(":id_topic", $id_topic, \PDO::PARAM_STR);
         if ($smt->execute())
@@ -555,12 +604,15 @@ class Topic extends Connect{
             if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
             {
                 $message = new Message();
-                $message->setId($row["id"]);
+                $message->setId($row["id"]);    
                 $message->setContent($row["content"]);
                 $message->setIsReported($row["is_reported"]);
                 $message->setIsDeleted($row["is_deleted"]);
-                $message->setAuthor($row["id_author"]);
-                $message->setTopic($row["id_topic"]);
+                $message->setAuthorId($row["id_author"]);
+                $message->setAuthorName($row["name_author"]);
+                $message->setAuthorAvatar($row["avatar_author"]);
+                $message->setTopicId($row["id_topic"]);
+                $message->setTopicName($row["name_topic"]);
                 $message->setCreatedAt($row["created_at"]);
                 $message->setUpdatedAt($row["updated_at"]);
                 return $message;

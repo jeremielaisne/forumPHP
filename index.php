@@ -29,7 +29,8 @@ $app->get("/recovery", function(){
 
 $app->get("/signup", function(){
     require __DIR__ . "/controllers/signup.php";
-    $pm->render('signup.html.twig', ['title' => $title, 'description' => $description, 'avatars' => $avatars, '_csrf' => $input]);
+    $pm->render('signup.html.twig', ['title' => $title, 'description' => $description, 
+    'avatars' => $avatars, '_csrf' => $input]);
 });
 
 $app->get("/404", function(){
@@ -39,7 +40,10 @@ $app->get("/404", function(){
 
 $app->get("/home", function(){
     require __DIR__ . "/controllers/home.php";
-    $pm->render('home.html.twig', ['title' => $title, 'description' => $description, 'nickname'=> $nickname, 'nbpost' => $nbpost, 'avatar' => $avatar, 'level' => $level, 'is_working' => $is_working, 'forums' => $forums]);
+    $pm->render('home.html.twig', ['title' => $title, 'description' => $description, 
+    'nickname'=> $nickname, 'nbpost' => $nbpost, 'level' => $level, 'is_working' => $is_working, 
+    'forums' => $forums, 'last_messages' => $list_last_message, 'nb_messages' => $list_nb_messages, 
+    'users' => $users_connected]);
 });
 
 $app->get("/forum/:nb/:crpus-:page", function($id, $page) use ($app){

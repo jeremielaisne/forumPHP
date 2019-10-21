@@ -14,6 +14,7 @@ class Forum extends Connect
 {
     private $id;
     private $name;
+    private $description;
     private $active;
     private $id_author;
     private $name_author;
@@ -27,10 +28,11 @@ class Forum extends Connect
 
     protected $db;
 
-    function __construct(int $id = null, string $name = null, bool $active = null, int $id_author = null, string $name_author = null, string $avatar_author = null, int $orderc = null, int $nbTopic = 0, int $nbTopicModeration = 0, bool $isDeleted = false, datetime $created_at = null, datetime $updated_at = null)
+    function __construct(int $id = null, string $name = null, string $description = null, bool $active = null, int $id_author = null, string $name_author = null, string $avatar_author = null, int $orderc = null, int $nbTopic = 0, int $nbTopicModeration = 0, bool $isDeleted = false, datetime $created_at = null, datetime $updated_at = null)
     {
         $this->id = $id;
         $this->name = $name;
+        $this->description = $description;
         $this->active = $active;
         $this->id_author = $id_author;
         $this->name_author = $name_author;
@@ -67,6 +69,16 @@ class Forum extends Connect
     function setName(string $name) : void
     {
         $this->name = $name;
+    }
+
+    function getDescription() : string
+    {
+        return $this->description;
+    }
+
+    function setDescription(string $description) : void
+    {
+        $this->description = $description;
     }
 
     function getActive() : bool
@@ -149,11 +161,11 @@ class Forum extends Connect
         $this->isDeleted = $isDeleted;
     }
 
-    function getCreatedAt() : ?Datetime
+    function getCreatedAt()
     {
         if ($this->created_at != null)
         {
-            return new DateTime($this->created_at);
+            return textDatetime($this->created_at);
         }
         return null;
     }
@@ -168,7 +180,7 @@ class Forum extends Connect
     {
         if ($this->updated_at != null)
         {
-            return new DateTime($this->updated_at);
+            return $this->updated_at;
         }
         return null;
     }
@@ -196,6 +208,7 @@ class Forum extends Connect
             "SELECT 
                 f.name AS name,
                 f.active AS active,
+                f.description AS description;
                 f.id_author AS id_author,
                 a.nickname AS name_author,
                 a.avatar AS avatar_author,
@@ -216,6 +229,7 @@ class Forum extends Connect
         if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
         {
             $this->setName($row["name"]);
+            $this->setDescription($row["description"]);
             $this->setAuthorId($row["id_author"]);
             $this->setAuthorName($row["name_author"]);
             $this->setAuthorAvatar($row["avatar_author"]);
@@ -257,6 +271,7 @@ class Forum extends Connect
         $smt = $this->db->prepare(
             "INSERT INTO forum(
                 name,
+                description,
                 active,
                 id_author,
                 orderc,
@@ -266,6 +281,7 @@ class Forum extends Connect
                 created_at
             )VALUES(
                 :name,
+                :description,
                 :active,
                 :id_author,
                 :orderc,
@@ -275,6 +291,7 @@ class Forum extends Connect
                 NOW()
             )");
         $smt->bindValue(":name", $this->getName(), \PDO::PARAM_STR);
+        $smt->bindValue(":description", $this->getDescription(), \PDO::PARAM_STR);
         $smt->bindValue(":active", $this->getActive(), \PDO::PARAM_BOOL);
         $smt->bindValue(":id_author", $this->getAuthorId(), \PDO::PARAM_INT);
         $smt->bindValue(":orderc", $this->getOrderc(), \PDO::PARAM_INT);
@@ -317,6 +334,7 @@ class Forum extends Connect
                 forum 
             SET 
                 name = :name,
+                description = :description,
                 active = :active,
                 id_author = :id_author,
                 orderc = :orderc,
@@ -329,6 +347,7 @@ class Forum extends Connect
         ");
         $smt->bindValue(":id", $this->getId(), \PDO::PARAM_INT);
         $smt->bindValue(":name", $this->getName(), \PDO::PARAM_STR);
+        $smt->bindValue(":description", $this->getDescription(), \PDO::PARAM_STR);
         $smt->bindValue(":active", $this->getActive(), \PDO::PARAM_BOOL);
         $smt->bindValue(":id_author", $this->getAuthorId(), \PDO::PARAM_STR);
         $smt->bindValue(":orderc", $this->getOrderc(), \PDO::PARAM_INT);
@@ -362,6 +381,7 @@ class Forum extends Connect
                 t.is_locked as is_locked,
                 t.is_deleted as is_deleted,
                 t.id_forum as id_forum,
+                f.name as name_forum,
                 t.id_author as id_author,
                 a1.nickname as name_author,
                 a1.avatar as avatar_author,
@@ -372,12 +392,14 @@ class Forum extends Connect
                 t.updated_at as updated_at
             FROM
                 topic AS t
+            JOIN
+                forum as f ON f.id = t.id_forum
             JOIN 
                 user AS a1 ON a1.id = t.id_author
             JOIN 
                 user AS a2 ON a2.id = t.id_last_author
             WHERE
-                id_forum = :id_forum"
+                t.id_forum = :id_forum"
         );
         $smt->bindValue(":id_forum", $id_forum, \PDO::PARAM_INT);
         $smt->execute();
@@ -395,7 +417,8 @@ class Forum extends Connect
             $topic->setIsPin($row["is_pin"]);
             $topic->setIsLocked($row["is_locked"]);
             $topic->setIsDeleted($row["is_deleted"]);
-            $topic->setForum($row["id_forum"]);
+            $topic->setForumId($row["id_forum"]);
+            $topic->setForumName($row["name_forum"]);
             $topic->setAuthorId($row["id_author"]);
             $topic->setAuthorName($row["name_author"]);
             $topic->setAuthorAvatar($row["avatar_author"]);
@@ -428,6 +451,79 @@ class Forum extends Connect
     }
 
     /**
+     * Nombre de topics presents dans le forum
+     * 
+     *  @return int
+     */
+    public static function getNbMessages($id_forum) : ?int
+    {
+        $db = Connect::getPDO();
+        $smt = $db->prepare("SELECT m.id FROM message AS m JOIN topic as t ON t.id = m.id_topic WHERE t.id_forum = :id_forum");
+        $smt->bindValue(":id_forum", $id_forum, \PDO::FETCH_ASSOC);
+        if($smt->execute())
+        {
+            return $smt->rowCount();
+        }
+        return null;
+    }
+
+    /**
+     * Affichage du dernier message d'un forum
+     * 
+     *  @return new Message
+     */
+    public static function getLastMessage($id_forum) : ?Message
+    {
+        $db = Connect::getPDO();
+        $smt = $db->prepare(
+            "SELECT
+                m.id as id,
+                m.content as content,
+                m.is_reported as is_reported,
+                m.is_deleted as is_deleted,
+                m.id_author as id_author,
+                a.nickname as name_author,
+                a.avatar as avatar_author,
+                m.id_topic as id_topic,
+                t.name as name_topic,
+                m.created_at as created_at,
+                m.updated_at as updated_at 
+            FROM 
+                message AS m
+            JOIN
+                user AS a ON a.id = m.id_author
+            JOIN 
+                topic AS t ON t.id = m.id_topic
+            WHERE 
+                t.id_forum = :id_forum 
+            ORDER BY
+                m.id DESC
+            LIMIT 1
+            ");
+        $smt->bindValue(":id_forum", $id_forum, \PDO::PARAM_STR);
+        if ($smt->execute())
+        {
+            if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
+            {
+                $message = new Message();
+                $message->setId($row["id"]);
+                $message->setContent($row["content"]);
+                $message->setIsReported($row["is_reported"]);
+                $message->setIsDeleted($row["is_deleted"]);
+                $message->setAuthorId($row["id_author"]);
+                $message->setAuthorName($row["name_author"]);
+                $message->setAuthorAvatar($row["avatar_author"]);
+                $message->setTopicId($row["id_topic"]);
+                $message->setTopicName($row["name_topic"]);
+                $message->setCreatedAt($row["created_at"]);
+                $message->setUpdatedAt($row["updated_at"]);
+                return $message;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Affichage d'un tableau de tous les forums existant
      * 
      *  @return array
@@ -439,6 +535,7 @@ class Forum extends Connect
             "SELECT
                 f.id as id,
                 f.name AS name,
+                f.description AS description,
                 f.active AS active,
                 f.id_author AS id_author,
                 a.nickname as name_author,
@@ -460,6 +557,7 @@ class Forum extends Connect
         {
             $forum = new Forum();
             $forum->setId($row["id"]);
+            $forum->setDescription($row["description"]);
             $forum->setName($row["name"]);
             $forum->setAuthorId($row["id_author"]);
             $forum->setAuthorName($row["name_author"]);

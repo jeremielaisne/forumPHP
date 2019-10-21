@@ -11,6 +11,10 @@ body, footer{
     color: #fff;
 }
 
+a:hover{
+    text-decoration: none;
+}
+
 #footer{
     position: absolute;
     margin: 0;
@@ -34,6 +38,22 @@ input.error{
 
 .background_black_light{
     background-color: #333;
+}
+
+.background_grey{
+    background-color:#30394B 
+}
+
+.color_grey{
+    color: #6B7281;
+}
+
+.color_red{
+    color: #B22222;
+}
+
+.color_white{
+    color: #fff;
 }
 
 #background_login{

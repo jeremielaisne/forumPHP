@@ -130,6 +130,18 @@ class ForumTest extends TestCase {
     }
 
     /**
+     * @test affichage du dernier message d'un forum
+     */
+    public function getLastMessagesForums()
+    {
+        $this->setForum(1);
+        $forum = $this->getForum()->load();
+        $message = Forum::getLastMessage($forum->getId());
+        $message_author_name = $message->getAuthorName();
+        $this->assertEquals("KickR", $message_author_name);
+    }
+
+    /**
      * @test affichage de l'url
      */
     public function getUrlForum()
@@ -244,6 +256,8 @@ class ForumTest extends TestCase {
         $messages = Topic::getMessages($topic->getId());
         $message_content = $messages[0]->getContent();
         $this->assertEquals("Ceci est un message", $message_content);
+        $message_author = $messages[0]->getAuthorName();
+        $this->assertEquals("KickR", $message_author);
     }
 
     /**
@@ -268,6 +282,8 @@ class ForumTest extends TestCase {
         $topic = $this->getTopic()->load();
         $msg = Topic::getFirstMessage($topic->getId());
         $this->assertEquals("Ceci est un message", $msg->getContent());
+        $message_author = $msg->getAuthorName();
+        $this->assertEquals("KickR", $message_author);
     }
 
     /**
@@ -279,6 +295,8 @@ class ForumTest extends TestCase {
         $topic = $this->getTopic()->load();
         $msg = Topic::getLastMessage($topic->getId());
         $this->assertEquals("C'est le dernier message", $msg->getContent());
+        $message_author = $msg->getAuthorName();
+        $this->assertEquals("KickR", $message_author);
     }
 
     /**
