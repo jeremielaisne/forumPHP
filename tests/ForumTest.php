@@ -112,8 +112,8 @@ class ForumTest extends TestCase {
     public function getNbTopicsForum()
     {
         $this->setForum(1);
-        $forum = $this->getForum()->load();
-        $this->assertEquals(2, Forum::getNbTopics($forum->getId()));
+        $forum = $this->getForum()->load(true);
+        $this->assertEquals(2, $forum->getNbTopics());
     }
 
     /**
@@ -147,8 +147,8 @@ class ForumTest extends TestCase {
     public function getUrlForum()
     {
         $this->setForum(1);
-        $forum = $this->getForum()->load();
-        $forum_url = Forum::getUrl($forum->getId());
+        $forum = $this->getForum()->load(true);
+        $forum_url = $forum->getUrl();
         $this->assertEquals("forum/1/page-1", $forum_url);
     }
 
@@ -266,11 +266,11 @@ class ForumTest extends TestCase {
     public function getNbMessagesTopic()
     {
         $this->setTopic(1);
-        $topic = $this->getTopic()->load();
-        $this->assertEquals(2, Topic::getnbMessages($topic->getId()));
+        $topic = $this->getTopic()->load(true);
+        $this->assertEquals(2, $topic->getNbMessages());
         $this->setTopic(2);
-        $topic = $this->getTopic()->load();
-        $this->assertEquals(1, Topic::getnbMessages($topic->getId()));
+        $topic = $this->getTopic()->load(true);
+        $this->assertEquals(1, $topic->getnbMessages());
     }
 
     /**
@@ -305,8 +305,8 @@ class ForumTest extends TestCase {
     public function getUrlTopic()
     {
         $this->setTopic(1);
-        $topic = $this->getTopic()->load();
-        $topics_url = Topic::getUrl($topic->getId(), $topic->getName());
+        $topic = $this->getTopic()->load(true);
+        $topics_url = $topic->getUrl($topic->getName(), 1);
         $this->assertEquals("forum/1/topic-1/page-1", $topics_url);
     }
 

@@ -16,12 +16,13 @@ class Message extends Connect
     private $avatar_author;
     private $id_topic;
     private $name_topic;
+    private $url_topic;
     private $created_at;
     private $updated_at;
 
     protected $db;
 
-    function __construct($content = null, $is_reported = false, $is_deleted = false, $id_author = null, $name_author = null, $avatar_author = null, $id_topic = null, $name_topic = null, $created_at = null, $updated_at = null)
+    function __construct($content = null, $is_reported = false, $is_deleted = false, $id_author = null, $name_author = null, $avatar_author = null, $id_topic = null, $name_topic = null, $url_topic = null, $created_at = null, $updated_at = null)
     {
         $this->content = $content;
         $this->is_reported = $is_reported;
@@ -31,6 +32,7 @@ class Message extends Connect
         $this->avatar_author = $avatar_author;
         $this->id_topic = $id_topic;
         $this->name_topic = $name_topic;
+        $this->url_topic = $url_topic;
         $this->created_at = $created_at;
         $this->updated_at = $updated_at;
 
@@ -132,6 +134,17 @@ class Message extends Connect
         $this->name_topic = $name_topic;
     }
 
+    function getTopicUrl() : ?string
+    {
+        return $this->url_topic;
+    }
+
+    function setTopicUrl(string $url_topic) : void
+    {
+        $this->url_topic = $url_topic;
+    }
+
+
     function getCreatedAt()
     {
         if ($this->created_at != null)
@@ -170,7 +183,7 @@ class Message extends Connect
      * Methodes
      */
 
-    public function load()
+    public function load($full = false)
     {
         $smt = $this->db->prepare(
             "SELECT
@@ -207,6 +220,14 @@ class Message extends Connect
             $this->setTopicName($row["name_topic"]);
             $this->setCreatedAt($row["created_at"]);
             $this->setUpdatedAt($row["updated_at"]);
+
+            if ($full == true)
+            {
+                $topic = new Topic();
+                $topic->setId($this->getTopicId());
+                $topic->load(true);
+                $this->setTopicUrl($topic->getUrl());
+            }
         }
         return $this;
     }

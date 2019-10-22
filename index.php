@@ -42,8 +42,7 @@ $app->get("/home", function(){
     require __DIR__ . "/controllers/home.php";
     $pm->render('home.html.twig', ['title' => $title, 'description' => $description, 
     'nickname'=> $nickname, 'nbpost' => $nbpost, 'level' => $level, 'is_working' => $is_working, 
-    'forums' => $forums, 'last_messages' => $list_last_message, 'nb_messages' => $list_nb_messages, 
-    'users' => $users_connected]);
+    'forums' => $forums, 'last_messages' => $list_last_message, 'users' => $users_connected]);
 });
 
 $app->get("/forum/:nb/:crpus-:page", function($id, $page) use ($app){
@@ -51,7 +50,7 @@ $app->get("/forum/:nb/:crpus-:page", function($id, $page) use ($app){
     //$pm->render('topic.html.twig', []);
 }, "topic_url")->with("nb", "[1-9]+");
 
-$app->get("/forum/:nbf/:pagef/:nbt/:paget", function($id_forum, $page_forum, $id_topic, $page_topic) use ($app){
+$app->get("/forum/:nbf/:nbt/:paget", function($id_forum, $id_topic, $page_topic) use ($app){
     //srequire __DIR__ . "/controllers/messages.php";
     //$pm->render('messages.html.twig', []);
 }, "topic_url")->with("nb", "[1-9]+")->with("topic", "[1-9]+");

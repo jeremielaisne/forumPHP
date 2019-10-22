@@ -12,8 +12,6 @@ class Topic extends Connect{
     private $name;
     private $active;
     private $nb_view;
-    private $nb_message;
-    private $nb_message_moderator;
     private $is_pin;
     private $is_locked;
     private $is_deleted;
@@ -28,16 +26,18 @@ class Topic extends Connect{
     private $created_at;
     private $updated_at;
 
+    private $url;
+    private $nbMessages;
+    private $nbMessagesModerator;
+
     protected $db;
 
-    function __construct($id = null, $name = null, $active = null, $nb_view = null, $nb_message = null, $nb_message_moderator = null, $is_pin = false, $is_locked = false, $is_deleted = null, $id_forum = null, $name_forum = null, $id_author = null, $name_author = null, $avatar_author = null, $id_last_author = null, $name_last_author = null, $avatar_last_author = null, $created_at = null, $updated_at = null)
+    function __construct($id = null, $name = null, $active = null, $nb_view = null, $is_pin = false, $is_locked = false, $is_deleted = null, $id_forum = null, $name_forum = null, $id_author = null, $name_author = null, $avatar_author = null, $id_last_author = null, $name_last_author = null, $avatar_last_author = null, $created_at = null, $updated_at = null, $url = null, $nbMessages = null, $nbMessagesModerator = null)
     {
         $this->id = $id;
         $this->name = $name;
         $this->active = $active;
         $this->nb_view = $nb_view;
-        $this->nb_message = $nb_message;
-        $this->nb_message_moderator = $nb_message_moderator;
         $this->is_pin = $is_pin;
         $this->is_locked = $is_locked;
         $this->is_deleted = $is_deleted;
@@ -51,6 +51,10 @@ class Topic extends Connect{
         $this->avatar_last_author = $avatar_last_author; 
         $this->created_at = $created_at;
         $this->updated_at = $updated_at;
+
+        $this->url = $url;
+        $this->nbMessages = $nbMessages;
+        $this->nbMessagesModerator = $nbMessagesModerator;
 
         $this->db = self::getPDO();
         return $this;
@@ -98,26 +102,6 @@ class Topic extends Connect{
     function setNbView(int $nb_view) : void
     {
         $this->nb_view = $nb_view;
-    }
-
-    function getNbMessage() : int
-    {
-        return $this->nb_message;
-    }
-
-    function setNbMessage(int $nb_message) : void
-    {
-        $this->nb_message = $nb_message;
-    }
-
-    function getNbMessageModerator() : int
-    {
-        return $this->nb_message_moderator;
-    }
-
-    function setNbMessageModerator(int $nb_message_moderator) : void
-    {
-        $this->nb_message_moderator = $nb_message_moderator;
     }
 
     function getIsPin() : bool
@@ -262,7 +246,7 @@ class Topic extends Connect{
     /**
      * Methodes
      */
-    public function load()
+    public function load($full = false)
     {
         $smt = $this->db->prepare(
             "SELECT
@@ -270,8 +254,6 @@ class Topic extends Connect{
                 t.name as name,
                 t.active as active,
                 t.nb_view as nb_view,
-                t.nb_message as nb_message,
-                t.nb_message_moderator as nb_message_moderator,
                 t.is_pin as is_pin,
                 t.is_locked as is_locked,
                 t.is_deleted as is_deleted,
@@ -303,8 +285,6 @@ class Topic extends Connect{
             $this->setName($row["name"]);
             $this->setActive($row["active"]);
             $this->setNbView($row["nb_view"]);
-            $this->setNbMessage($row["nb_message"]);
-            $this->setNbMessageModerator($row["nb_message_moderator"]);
             $this->setIsPin($row["is_pin"]);
             $this->setIsLocked($row["is_locked"]);
             $this->setIsDeleted($row["is_deleted"]);
@@ -318,6 +298,14 @@ class Topic extends Connect{
             $this->setLastAuthorAvatar($row["avatar_last_author"]);
             $this->setCreatedAt($row["created_at"]);
             $this->setUpdatedAt($row["updated_at"]);
+
+            if ($full == true)
+            {
+                $this->setNbMessages();
+                $this->setNbMessagesModerator();
+                $pages = ceil($this->getNbMessages()/15); 
+                $this->setUrl($this->getName(), $pages);
+            }
         }
         return $this;
     }
@@ -346,8 +334,6 @@ class Topic extends Connect{
                 name,
                 active,
                 nb_view,
-                nb_message,
-                nb_message_moderator,
                 is_pin,
                 is_locked,
                 is_deleted,
@@ -359,8 +345,6 @@ class Topic extends Connect{
                 :name,
                 :active,
                 :nb_view,
-                :nb_message,
-                :nb_message_moderator,
                 :is_pin,
                 :is_locked,
                 :is_deleted,
@@ -372,8 +356,6 @@ class Topic extends Connect{
         $smt->bindValue(":name", $this->getName(), \PDO::PARAM_STR);
         $smt->bindValue(":active", $this->getActive(), \PDO::PARAM_BOOL);
         $smt->bindValue(":nb_view", $this->getNbView(), \PDO::PARAM_INT);
-        $smt->bindValue(":nb_message", $this->getNbView(), \PDO::PARAM_INT);
-        $smt->bindValue(":nb_message_moderator", $this->getNbMessageModerator(), \PDO::PARAM_INT);
         $smt->bindValue(":is_pin", $this->getIsPin(), \PDO::PARAM_BOOL);
         $smt->bindValue(":is_locked", $this->getIsLocked(), \PDO::PARAM_BOOL);
         $smt->bindValue(":is_deleted", $this->getIsDeleted(), \PDO::PARAM_BOOL);
@@ -403,8 +385,6 @@ class Topic extends Connect{
                 name = :name,
                 active = :active,
                 nb_view = :is_pin,
-                nb_message = :nb_message,
-                nb_message_moderator = :nb_message_moderator,
                 is_pin = :is_pin,
                 is_locked = :is_locked,
                 is_deleted = :is_deleted,
@@ -419,8 +399,6 @@ class Topic extends Connect{
         $smt->bindValue("name", $this->getName(), \PDO::PARAM_STR);
         $smt->bindValue("active", $this->getActive(), \PDO::PARAM_BOOL);
         $smt->bindValue("nb_view", $this->getNbView(), \PDO::PARAM_INT);
-        $smt->bindValue("nb_message", $this->getNbMessage(), \PDO::PARAM_INT);
-        $smt->bindValue("nb_message_moderator", $this->getNbMessageModerator(), \PDO::PARAM_INT);
         $smt->bindValue("is_pin", $this->getIsPin(), \PDO::PARAM_BOOL);
         $smt->bindValue("is_locked", $this->getIsLocked(), \PDO::PARAM_BOOL);
         $smt->bindValue("is_deleted", $this->getIsDeleted(), \PDO::PARAM_BOOL);
@@ -436,11 +414,84 @@ class Topic extends Connect{
     }
 
     /**
+     * Setter - nombre de messages d'un topic
+     */
+    function setNbMessages() : void
+    {
+        $smt = $this->db->prepare("SELECT id FROM message WHERE id_topic = :id_topic");
+        $smt->bindValue(":id_topic", $this->getId(), \PDO::PARAM_STR);
+        if ($smt->execute())
+        {
+            $this->nbMessages =  $smt->rowCount();
+        }
+    }
+
+    /**
+     * Getter - Retourne le nombre de messages d'un topic
+     * 
+     * @return int 
+     */
+    function getNbMessages() : int
+    {
+        return $this->nbMessages;
+    }
+
+    /**
+     * Setter - nombre de messages d'un topic
+     */
+    function setNbMessagesModerator() : void
+    {
+        $smt = $this->db->prepare("SELECT id FROM message WHERE id_topic = :id_topic AND is_deleted = true");
+        $smt->bindValue(":id_topic", $this->getId(), \PDO::PARAM_STR);
+        if ($smt->execute())
+        {
+            $this->nbMessagesModerator =  $smt->rowCount();
+        }
+    }
+
+    /**
+     * Getter - Retourne le nombre de messages moderes d'un topic
+     * 
+     * @return int 
+     */
+    function getNbMessagesModerator() : int
+    {
+        return $this->nbMessagesModerator;
+    }
+
+    /**
+     * Setter url d'un topic
+     */
+    public function setUrl($name, $page = 1, $search = null) : void
+    {
+        $slugify = new Slugify();
+        $slug_name = $slugify->slugify($name);
+        if ($search == null)
+        {
+            $this->url = "forum/". $this->getId(). "/" . $slug_name . "/page-" . $page;
+        }
+        else
+        {
+            $this->url = "forum/". $this->getId() . "/" . $slug_name . "/page-" . $page . "?s=" . $search;
+        }
+    }
+
+    /**
+     * Getter url d'un topic
+     * 
+     * @return string
+     */
+    public function getUrl() : ?string
+    {
+        return $this->url;
+    }
+
+    /**
      * Affichage des messages présent dans un topic
      * 
      *  @return array
      */
-    public static function getMessages($id_topic) : ?array
+    public static function getMessages($id_topic, $full = false) : ?array
     {
         $db = Connect::getPDO();
         $smt = $db->prepare(
@@ -484,6 +535,15 @@ class Topic extends Connect{
                 $message->setTopicName($row["name_topic"]);
                 $message->setCreatedAt($row["created_at"]);
                 $message->setUpdatedAt($row["updated_at"]);
+
+                if ($full == true)
+                {
+                    $topic = new Topic();
+                    $topic->setId($message->getTopicId());
+                    $topic->load(true);
+                    $message->setTopicUrl($topic->getUrl());
+                }
+
                 $messages[$i] = $message;
                 $i++;
             }
@@ -493,28 +553,11 @@ class Topic extends Connect{
     }
 
     /**
-     * Retourne le nombre de messages d'un topic
-     * 
-     * @return int 
-     */
-    public static function getNbMessages($id_topic) : int
-    {
-        $db = Connect::getPDO();
-        $smt = $db->prepare("SELECT id FROM message WHERE id_topic = :id_topic");
-        $smt->bindValue(":id_topic", $id_topic, \PDO::PARAM_STR);
-        if ($smt->execute())
-        {
-            return $smt->rowCount();
-        }
-        return null;
-    }
-
-    /**
      * Affichage du premier message d'un topic
      * 
      *  @return new Message
      */
-    public static function getFirstMessage($id_topic) : ?Message
+    public static function getFirstMessage($id_topic, $full = false) : ?Message
     {
         $db = Connect::getPDO();
         $smt = $db->prepare(
@@ -559,6 +602,15 @@ class Topic extends Connect{
                 $message->setTopicName($row["name_topic"]);
                 $message->setCreatedAt($row["created_at"]);
                 $message->setUpdatedAt($row["updated_at"]);
+
+                if ($full == true)
+                {
+                    $topic = new Topic();
+                    $topic->setId($message->getTopicId());
+                    $topic->load(true);
+                    $message->setTopicUrl($topic->getUrl());
+                }
+
                 return $message;
             }
         }
@@ -570,7 +622,7 @@ class Topic extends Connect{
      * 
      *  @return new Message
      */
-    public static function getLastMessage($id_topic) : ?Message
+    public static function getLastMessage($id_topic, $full = false) : ?Message
     {
         $db = Connect::getPDO();
         $smt = $db->prepare(
@@ -615,25 +667,18 @@ class Topic extends Connect{
                 $message->setTopicName($row["name_topic"]);
                 $message->setCreatedAt($row["created_at"]);
                 $message->setUpdatedAt($row["updated_at"]);
+
+                if ($full == true)
+                {
+                    $topic = new Topic();
+                    $topic->setId($message->getTopicId());
+                    $topic->load(true);
+                    $message->setTopicUrl($topic->getUrl());
+                }
+                
                 return $message;
             }
         }
         return null;
-    }
-
-    /**
-     * Affichage de l'url du topic
-     * 
-     *  @return string
-     */
-    public static function getUrl($id, $name, $page = 1, $search = null) : string
-    {
-        $slugify = new Slugify();
-        $slug_name = $slugify->slugify($name);
-        if ($search == null)
-        {
-            return "forum/". $id. "/" . $slug_name . "/page-" . $page;
-        }
-        return "forum/". $id . "/" . $slug_name . "/page-" . $page . "?s=" . $search;
     }
 }

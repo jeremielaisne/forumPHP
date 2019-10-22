@@ -23,16 +23,13 @@ else
     $level = $pm->getUsercookie()->getUser()->getLvl();
     $is_working = $pm->getUsercookie()->getUser()->getIsWorking();
 
-    $forums = Forum::getAll();
+    $forums = Forum::getAll(true);
     $list_last_message = [];
-    $list_nb_messages = [];
     foreach ($forums as $forum)
     {
         $id_forum = $forum->getId();
-        $last_message = Forum::getLastMessage($id_forum);
+        $last_message = Forum::getLastMessage($id_forum, true);
         $list_last_message[$id_forum] = $last_message;
-        $nb_messages = Forum::getNbMessages($id_forum);
-        $list_nb_messages[$id_forum] = $nb_messages;
     }
     $user = $pm->getUsercookie()->getUser();
     $user->update();

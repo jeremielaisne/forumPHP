@@ -20,15 +20,18 @@ class Forum extends Connect
     private $name_author;
     private $avatar_author;
     private $orderc;
-    private $nbTopic;
-    private $nbTopicModeration;
     private $isDeleted;
     private $created_at;
     private $updated_at;
 
+    private $url;
+    private $nbTopics;
+    private $nbTopicsModerator;
+    private $nbMessages;
+
     protected $db;
 
-    function __construct(int $id = null, string $name = null, string $description = null, bool $active = null, int $id_author = null, string $name_author = null, string $avatar_author = null, int $orderc = null, int $nbTopic = 0, int $nbTopicModeration = 0, bool $isDeleted = false, datetime $created_at = null, datetime $updated_at = null)
+    function __construct(int $id = null, string $name = null, string $description = null, bool $active = null, int $id_author = null, string $name_author = null, string $avatar_author = null, int $orderc = null, bool $isDeleted = false, datetime $created_at = null, datetime $updated_at = null, string $url = null, int $nbTopics = 0, int $nbTopicsModerator = 0, int $nbMessages = 0)
     {
         $this->id = $id;
         $this->name = $name;
@@ -38,11 +41,14 @@ class Forum extends Connect
         $this->name_author = $name_author;
         $this->avatar_author = $avatar_author;
         $this->orderc = $orderc;
-        $this->nbTopic = $nbTopic;
-        $this->nbTopicModeration = $nbTopicModeration;
         $this->isDeleted = $isDeleted;
         $this->created_at = $created_at;
         $this->updated_at = $updated_at;
+
+        $this->url = $url;
+        $this->nbTopics = $nbTopics;
+        $this->nbTopicModerator = $nbTopicsModerator;
+        $this->nbMessages = $nbMessages;
 
         $this->db = self::getPDO();
         return $this;
@@ -131,26 +137,6 @@ class Forum extends Connect
         $this->orderc = $orderc;
     }
 
-    function getNbTopic() : int
-    {
-        return $this->nbTopic;
-    }
-
-    function setNbTopic(int $nbTopic) : void
-    {
-        $this->nbTopic = $nbTopic;
-    }
-
-    function getNbTopicModeration() : int
-    {
-        return $this->nbTopicModeration;
-    }
-
-    function setNbTopicModeration(int $nbTopicModeration) : void
-    {
-        $this->nbTopicModeration = $nbTopicModeration;
-    }
-
     function getIsDeleted() : bool
     {
         return $this->isDeleted;
@@ -202,19 +188,17 @@ class Forum extends Connect
      * 
      * @return obj new Forum
      */
-    function load() : Forum
+    function load($full = false) : Forum
     {
         $smt = $this->db->prepare(
             "SELECT 
                 f.name AS name,
                 f.active AS active,
-                f.description AS description;
+                f.description AS description,
                 f.id_author AS id_author,
                 a.nickname AS name_author,
                 a.avatar AS avatar_author,
                 f.orderc AS orderc,
-                f.nbTopic AS nbTopic,
-                f.nbTopicModeration AS nbTopicModeration,
                 f.isDeleted AS isDeleted,
                 f.created_at AS created_at,
                 f.updated_at AS updated_at
@@ -235,11 +219,18 @@ class Forum extends Connect
             $this->setAuthorAvatar($row["avatar_author"]);
             $this->setActive($row["active"]);
             $this->setOrderc($row["orderc"]);
-            $this->setNbTopic($row["nbTopic"]);
-            $this->setNbTopicModeration($row["nbTopicModeration"]);
             $this->setIsDeleted($row["isDeleted"]);
             $this->setCreatedAt($row["created_at"]);
             $this->setUpdatedAt($row["updated_at"]);
+
+            if ($full == true)
+            {
+                $this->setNbTopics();
+                $this->setNbTopicsModerator();
+                $this->setNbMessages();
+                $pages = ceil($this->getNbTopics()/15); 
+                $this->setUrl($pages);
+            }
         }
         return $this;
     }
@@ -275,8 +266,6 @@ class Forum extends Connect
                 active,
                 id_author,
                 orderc,
-                nbTopic,
-                nbTopicModeration,
                 isDeleted,
                 created_at
             )VALUES(
@@ -285,8 +274,6 @@ class Forum extends Connect
                 :active,
                 :id_author,
                 :orderc,
-                :nbTopic,
-                :nbTopicModeration,
                 :isDeleted,
                 NOW()
             )");
@@ -295,8 +282,6 @@ class Forum extends Connect
         $smt->bindValue(":active", $this->getActive(), \PDO::PARAM_BOOL);
         $smt->bindValue(":id_author", $this->getAuthorId(), \PDO::PARAM_INT);
         $smt->bindValue(":orderc", $this->getOrderc(), \PDO::PARAM_INT);
-        $smt->bindValue(":nbTopic", $this->getNbTopic(), \PDO::PARAM_INT);
-        $smt->bindValue(":nbTopicModeration", $this->getNbTopicModeration(), \PDO::PARAM_INT);
         $smt->bindValue(":isDeleted", $this->getIsDeleted(), \PDO::PARAM_BOOL);
         if($smt->execute())
         {
@@ -338,8 +323,6 @@ class Forum extends Connect
                 active = :active,
                 id_author = :id_author,
                 orderc = :orderc,
-                nbTopic = :nbTopic,
-                nbTopicModeration = :nbTopicModeration,
                 isDeleted = :isDeleted,
                 updated_at = NOW()
             WHERE
@@ -351,8 +334,6 @@ class Forum extends Connect
         $smt->bindValue(":active", $this->getActive(), \PDO::PARAM_BOOL);
         $smt->bindValue(":id_author", $this->getAuthorId(), \PDO::PARAM_STR);
         $smt->bindValue(":orderc", $this->getOrderc(), \PDO::PARAM_INT);
-        $smt->bindValue(":nbTopic", $this->getNbTopic(), \PDO::PARAM_INT);
-        $smt->bindValue(":nbTopicModeration", $this->getNbTopicModeration(), \PDO::PARAM_INT);
         $smt->bindValue(":isDeleted", $this->getIsDeleted(), \PDO::PARAM_BOOL);
         if ($smt->execute())
         {
@@ -362,11 +343,106 @@ class Forum extends Connect
     }
 
     /**
+     * Setter url d'un forum
+     * 
+     */
+    public function setUrl($page = 1, $search = null) : void
+    {
+        if ($search == null)
+        {
+            $this->url = "forum/". $this->id. "/page-" . $page;
+        }
+        else
+        {
+            $this->url = "forum/". $this->id . "/page-" . $page . "?s=" . $search;
+        }
+    }
+
+    /**
+     * Getter url d'un forum
+     * 
+     *  @return string
+     */
+    public function getUrl() : ?string
+    {
+        return $this->url;
+    }
+
+    /**
+     * Nombre de topics presents dans le forum 
+     */
+    public function setNbTopics() : void
+    {
+        $smt = $this->db->prepare("SELECT id FROM topic WHERE id_forum = :id_forum");
+        $smt->bindValue(":id_forum", $this->getId(), \PDO::FETCH_ASSOC);
+        if($smt->execute())
+        {
+            $this->nbTopics = $smt->rowCount();
+        }
+    }
+
+    /**
+     * Getter nbTopics d'un forum
+     * 
+     *  @return int
+     */
+    public function getNbTopics() : ?int
+    {
+        return $this->nbTopics;
+    }
+
+    /**
+     * Nombre de topics presents dans le forum 
+     */
+    public function setNbTopicsModerator() : void
+    {
+        $smt = $this->db->prepare("SELECT id FROM topic WHERE id_forum = :id_forum AND is_deleted = true");
+        $smt->bindValue(":id_forum", $this->getId(), \PDO::FETCH_ASSOC);
+        if($smt->execute())
+        {
+            $this->nbTopicsModerator = $smt->rowCount();
+        }
+    }
+
+    /**
+     * Getter nbTopics en Moderator d'un forum
+     * 
+     *  @return int
+     */
+    public function getNbTopicsModerator() : ?int
+    {
+        return $this->nbTopicsModerator;
+    }
+
+    /**
+     * Nombre de messages presents dans le forum
+     */
+    public function setNbMessages() : void
+    {
+        $smt = $this->db->prepare("SELECT m.id FROM message AS m JOIN topic as t ON t.id = m.id_topic WHERE t.id_forum = :id_forum");
+        $smt->bindValue(":id_forum", $this->getId(), \PDO::FETCH_ASSOC);
+        if ($smt->execute())
+        {
+            $this->nbMessages = $smt->rowCount();
+        }
+    }
+
+    /**
+     * Getter nbTopics d'un forum
+     * 
+     *  @return int
+     */
+    public function getNbMessages() : ?int
+    {
+        return $this->nbMessages;
+    }
+
+    /**
      * Tableau de topics présents dans le forum 
      * 
      *  @return array
      */
-    public static function getTopics($id_forum) : array
+    public static function getTopics($id_forum, $full = false) : array
     {
         $db = Connect::getPDO();
         $smt = $db->prepare(
@@ -375,8 +451,6 @@ class Forum extends Connect
                 t.name as name,
                 t.active as active,
                 t.nb_view as nb_view,
-                t.nb_message as nb_message,
-                t.nb_message_moderator as nb_message_moderator,
                 t.is_pin as is_pin,
                 t.is_locked as is_locked,
                 t.is_deleted as is_deleted,
@@ -412,8 +486,6 @@ class Forum extends Connect
             $topic->setName($row["name"]);
             $topic->setActive($row["active"]);
             $topic->setNbView($row["nb_view"]);
-            $topic->setNbMessage($row["nb_view"]);
-            $topic->setNbMessageModerator($row["nb_view"]);
             $topic->setIsPin($row["is_pin"]);
             $topic->setIsLocked($row["is_locked"]);
             $topic->setIsDeleted($row["is_deleted"]);
@@ -427,6 +499,15 @@ class Forum extends Connect
             $topic->setLastAuthorAvatar($row["avatar_last_author"]);
             $topic->setCreatedAt($row["created_at"]);
             $topic->setUpdatedAt($row["updated_at"]);
+
+            if ($full == true)
+            {
+                $topic->setNbMessages();
+                $topic->setNbMessagesModerator();
+                $pages = ceil($topic->getNbMessages()/15); 
+                $topic->setUrl($topic->getName(), $pages);
+            }
+
             $topics[$i] = $topic;
             $i++;
         }
@@ -434,45 +515,11 @@ class Forum extends Connect
     }
 
     /**
-     * Nombre de topics presents dans le forum
-     * 
-     *  @return int
-     */
-    public static function getNbTopics($id_forum) : ?int
-    {
-        $db = Connect::getPDO();
-        $smt = $db->prepare("SELECT id FROM topic WHERE id_forum = :id_forum");
-        $smt->bindValue(":id_forum", $id_forum, \PDO::FETCH_ASSOC);
-        if($smt->execute())
-        {
-            return $smt->rowCount();
-        }
-        return null;
-    }
-
-    /**
-     * Nombre de topics presents dans le forum
-     * 
-     *  @return int
-     */
-    public static function getNbMessages($id_forum) : ?int
-    {
-        $db = Connect::getPDO();
-        $smt = $db->prepare("SELECT m.id FROM message AS m JOIN topic as t ON t.id = m.id_topic WHERE t.id_forum = :id_forum");
-        $smt->bindValue(":id_forum", $id_forum, \PDO::FETCH_ASSOC);
-        if($smt->execute())
-        {
-            return $smt->rowCount();
-        }
-        return null;
-    }
-
-    /**
      * Affichage du dernier message d'un forum
      * 
      *  @return new Message
      */
-    public static function getLastMessage($id_forum) : ?Message
+    public static function getLastMessage($id_forum, $full = false) : ?Message
     {
         $db = Connect::getPDO();
         $smt = $db->prepare(
@@ -517,6 +564,15 @@ class Forum extends Connect
                 $message->setTopicName($row["name_topic"]);
                 $message->setCreatedAt($row["created_at"]);
                 $message->setUpdatedAt($row["updated_at"]);
+
+                if ($full == true)
+                {
+                    $topic = new Topic();
+                    $topic->setId($message->getTopicId());
+                    $topic->load(true);
+                    $message->setTopicUrl($topic->getUrl());
+                }
+
                 return $message;
             }
         }
@@ -528,7 +584,7 @@ class Forum extends Connect
      * 
      *  @return array
      */
-    public static function getAll() : array
+    public static function getAll($full = false) : array
     {
         $db = Connect::getPDO();
         $smt = $db->prepare(
@@ -541,8 +597,6 @@ class Forum extends Connect
                 a.nickname as name_author,
                 a.avatar as avatar_author,
                 f.orderc AS orderc,
-                f.nbTopic AS nbTopic,
-                f.nbTopicModeration AS nbTopicModeration,
                 f.isDeleted AS isDeleted,
                 f.created_at AS created_at,
                 f.updated_at AS updated_at
@@ -564,28 +618,22 @@ class Forum extends Connect
             $forum->setAuthorAvatar($row["avatar_author"]);
             $forum->setActive($row["active"]);
             $forum->setorderc($row["orderc"]);
-            $forum->setNbTopic($row["nbTopic"]);
-            $forum->setNbTopicModeration($row["nbTopicModeration"]);
             $forum->setIsDeleted($row["isDeleted"]);
             $forum->setCreatedAt($row["created_at"]);
             $forum->setUpdatedAt($row["updated_at"]);
+
+            if ($full == true)
+            {
+                $forum->setNbTopics();
+                $forum->setNbTopicsModerator();
+                $forum->setNbMessages();
+                $pages = ceil($forum->getNbTopics()/15); 
+                $forum->setUrl($pages);
+            }
+
             $forums[$i] = $forum; 
             $i++;
         }
         return $forums;
-    }
-
-    /**
-     * Affichage de l'url du forum
-     * 
-     *  @return string
-     */
-    public static function getUrl($id, $page = 1, $search = null) : string
-    {
-        if ($search == null)
-        {
-            return "forum/". $id. "/page-" . $page;
-        }
-        return "forum/". $id . "/page-" . $page . "?s=" . $search;
     }
 }
