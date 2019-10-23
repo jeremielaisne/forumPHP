@@ -303,7 +303,8 @@ class Topic extends Connect{
             {
                 $this->setNbMessages();
                 $this->setNbMessagesModerator();
-                $pages = ceil($this->getNbMessages()/15); 
+                $pages = ceil($this->getNbMessages()/15);
+                $pages == 0 ? $pages = 1 : $pages; 
                 $this->setUrl($this->getName(), $pages);
             }
         }

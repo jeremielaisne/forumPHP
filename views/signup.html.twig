@@ -37,7 +37,7 @@
                     <table class="col-auto m-3" id="table_avatar">
                         <tr class="row">
                         {% for i in 1..24 %}
-                            <td class="col-115px {% if i == 13 %}active{% endif %}">
+                            <td class="col-115 {% if i == 13 %}active{% endif %}">
                                 <img class="{% if i == 13 %}border-success{% else %}opacity-05 border-secondary{% endif %} img-responsive border rounded border-3" src="./assets/img/avatars/{{ i }}_avatar.jpg" alt="avatar_{{ i }}" data-id="{{ i }}" />
                                 <span class="{% if i != 13 %}opacity-05{% endif %} ml-2">{{ avatars[i-1] }}</span>
                             </td>

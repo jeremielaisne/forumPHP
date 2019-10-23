@@ -228,7 +228,8 @@ class Forum extends Connect
                 $this->setNbTopics();
                 $this->setNbTopicsModerator();
                 $this->setNbMessages();
-                $pages = ceil($this->getNbTopics()/15); 
+                $pages = ceil($this->getNbTopics()/15);
+                $pages == 0 ? $pages = 1 : $pages; 
                 $this->setUrl($pages);
             }
         }
@@ -504,7 +505,8 @@ class Forum extends Connect
             {
                 $topic->setNbMessages();
                 $topic->setNbMessagesModerator();
-                $pages = ceil($topic->getNbMessages()/15); 
+                $pages = ceil($topic->getNbMessages()/15);
+                $pages == 0 ? $pages = 1 : $pages; 
                 $topic->setUrl($topic->getName(), $pages);
             }
 
@@ -627,7 +629,8 @@ class Forum extends Connect
                 $forum->setNbTopics();
                 $forum->setNbTopicsModerator();
                 $forum->setNbMessages();
-                $pages = ceil($forum->getNbTopics()/15); 
+                $pages = ceil($forum->getNbTopics()/15);
+                $pages == 0 ? $pages = 1 : $pages; 
                 $forum->setUrl($pages);
             }
 

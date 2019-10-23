@@ -98,6 +98,7 @@ $(document).ready( function() {
         $(this).parent().css('cursor', 'default');
     })
     //HOME
+    /*
     $('#home_forum').DataTable({
         "searching": false,
         "paging": false,
@@ -113,4 +114,5 @@ $(document).ready( function() {
             { "width": "30%" }
         ]
     });
+    */
 })

@@ -11,8 +11,41 @@ body, footer{
     color: #fff;
 }
 
+tbody::before
+{
+    content: '';
+    display: block;
+    height: 75px;
+    border-bottom: 1px dashed #888;
+}
+
+tbody::after
+{
+    content: '';
+    display: block;
+    height: 15px;
+}
+
+tfoot::before
+{
+    content: '';
+    display: block;
+    height: 25px;
+    border-top: 1px dashed #888;
+}
+
+#home_forum tbody tr {
+    padding: 5px;
+    border-bottom: 2px solid rgb(23, 31, 46);
+    margin: 20px;
+}
+
 a:hover{
     text-decoration: none;
+}
+
+a span:hover{
+    color: orange;
 }
 
 #footer{
@@ -70,8 +103,16 @@ input.error{
     opacity: .5;
 }
 
-.col-115px{
-    width: 115px;
+.col-115{
+    min-width: 115px;
+}
+
+.col-150{
+    min-width: 150px;
+}
+
+.col-550{
+    min-width: 550px;
 }
 
 #table_avatar table tr td:hover{
