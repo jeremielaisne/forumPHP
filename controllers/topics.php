@@ -1,23 +1,50 @@
 <?php
 
+use App\Forum;
 use App\Topic;
-use App\Middleware\CsrfMiddleware;
 use App\Page\PageMaker;
 
 # Variables
-//TODO $nb_page_forum & $nb_page_topic
-$nb_page_forum = substr(strrchr($page_forum, "/"), 1);
-$nb_page_topic = substr(strrchr($page_topic, "/"), 1);
+$title = "Topic - Dollars Forum";
+$description = "Topics dollars durarara!";
 
-$search = (string) getFormVal("search");
-
-$topic = new Topic($id_topic);
-if ($topic->isExist())
+# Fonctions / Requêtes
+$pm = new PageMaker();
+if ($pm->getUsercookie()->getIsConnect() == false)
 {
-    echo "TODO";
+    echo "<p>Accès non autorisé.. Veuillez-vous connecté</p>";
+    echo "<a href='/'>Accueil</a>";
+    exit(0);
 }
 else
 {
-    header("Location: /404.php");
-    exit(0);
+    $search = (string) getFormVal("search");
+    $nickname = $pm->getUsercookie()->getUser()->getNickname();
+    $nbpost = $pm->getUsercookie()->getUser()->getNbPost();
+    $level = $pm->getUsercookie()->getUser()->getLvl();
+    $is_working = $pm->getUsercookie()->getUser()->getIsWorking();
+
+    $forum = new Forum($id);
+    if ($forum->isExist())
+    {
+        $forum->load(true);
+        $title = $forum->getName() . " - Dollars Forum";
+        $description = $forum->getDescription() . " - Topics dollars durarara!";
+        $deb = ($page-1)*10;
+        $fin = ($page*10)-1;
+        $topics = Forum::getTopics($forum->getId(), true, $deb, $fin);
+
+        $list_last_message = [];
+        foreach ($topics as $topic)
+        {
+            $id_topic = $topic->getId();
+            $last_message = Topic::getLastMessage($id_topic, true);
+            $list_last_message[$id_topic] = $last_message;
+        }
+    }
+    else
+    {
+        header("Location: /404.php");
+        exit(0);
+    }
 }

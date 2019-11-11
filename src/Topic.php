@@ -420,7 +420,7 @@ class Topic extends Connect{
     function setNbMessages() : void
     {
         $smt = $this->db->prepare("SELECT id FROM message WHERE id_topic = :id_topic");
-        $smt->bindValue(":id_topic", $this->getId(), \PDO::PARAM_STR);
+        $smt->bindValue(":id_topic", $this->getId(), \PDO::PARAM_INT);
         if ($smt->execute())
         {
             $this->nbMessages =  $smt->rowCount();
@@ -432,7 +432,7 @@ class Topic extends Connect{
      * 
      * @return int 
      */
-    function getNbMessages() : int
+    function getNbMessages() : ?int
     {
         return $this->nbMessages;
     }
@@ -443,7 +443,7 @@ class Topic extends Connect{
     function setNbMessagesModerator() : void
     {
         $smt = $this->db->prepare("SELECT id FROM message WHERE id_topic = :id_topic AND is_deleted = true");
-        $smt->bindValue(":id_topic", $this->getId(), \PDO::PARAM_STR);
+        $smt->bindValue(":id_topic", $this->getId(), \PDO::PARAM_INT);
         if ($smt->execute())
         {
             $this->nbMessagesModerator =  $smt->rowCount();
@@ -674,6 +674,7 @@ class Topic extends Connect{
                     $topic = new Topic();
                     $topic->setId($message->getTopicId());
                     $topic->load(true);
+                    $topic->setNbMessages();
                     $message->setTopicUrl($topic->getUrl());
                 }
                 

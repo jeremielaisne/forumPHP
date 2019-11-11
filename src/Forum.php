@@ -375,7 +375,7 @@ class Forum extends Connect
     public function setNbTopics() : void
     {
         $smt = $this->db->prepare("SELECT id FROM topic WHERE id_forum = :id_forum");
-        $smt->bindValue(":id_forum", $this->getId(), \PDO::FETCH_ASSOC);
+        $smt->bindValue(":id_forum", $this->getId(), \PDO::PARAM_INT);
         if($smt->execute())
         {
             $this->nbTopics = $smt->rowCount();
@@ -398,7 +398,7 @@ class Forum extends Connect
     public function setNbTopicsModerator() : void
     {
         $smt = $this->db->prepare("SELECT id FROM topic WHERE id_forum = :id_forum AND is_deleted = true");
-        $smt->bindValue(":id_forum", $this->getId(), \PDO::FETCH_ASSOC);
+        $smt->bindValue(":id_forum", $this->getId(), \PDO::PARAM_INT);
         if($smt->execute())
         {
             $this->nbTopicsModerator = $smt->rowCount();
@@ -421,7 +421,7 @@ class Forum extends Connect
     public function setNbMessages() : void
     {
         $smt = $this->db->prepare("SELECT m.id FROM message AS m JOIN topic as t ON t.id = m.id_topic WHERE t.id_forum = :id_forum");
-        $smt->bindValue(":id_forum", $this->getId(), \PDO::FETCH_ASSOC);
+        $smt->bindValue(":id_forum", $this->getId(), \PDO::PARAM_INT);
         if ($smt->execute())
         {
             $this->nbMessages = $smt->rowCount();
@@ -443,7 +443,7 @@ class Forum extends Connect
      * 
      *  @return array
      */
-    public static function getTopics($id_forum, $full = false) : array
+    public static function getTopics($id_forum, $full = false, $deb = 0, $fin = 9) : array
     {
         $db = Connect::getPDO();
         $smt = $db->prepare(
@@ -474,7 +474,8 @@ class Forum extends Connect
             JOIN 
                 user AS a2 ON a2.id = t.id_last_author
             WHERE
-                t.id_forum = :id_forum"
+                t.id_forum = :id_forum
+            LIMIT $deb, $fin"
         );
         $smt->bindValue(":id_forum", $id_forum, \PDO::PARAM_INT);
         $smt->execute();

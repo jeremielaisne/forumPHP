@@ -40,43 +40,45 @@
         <div class="pt-3">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item active" aria-current="page">
+                    <li class="breadcrumb-item active">
                         <a class="color_grey" href="/home">
                             <i class="fas fa-home"></i> Home
                         </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="fab fa-forumbee"></i> {{ forum.name }}
                     </li>
                 </ol>
             </nav>
         </div>
         <div class="row">
-            <h1 class="col-12 mt-3"><i class="fab fa-jedi-order"></i> GROUP FORUM</h1>
+            <h1 class="col-12 mt-3"><i class="fab fa-jedi-order"></i> {{ title }}</h1>
+            <p class="col-12">{{ description }}</p>
             <table id="home_forum" style="width:100%;">
                 <tbody class="container-fluid">
-                {% for forum in forums %}
+                {% for topic in topics %}
                     <tr class="row">
-                        <td class="d-none d-lg-none d-xl-block col-lg-2 m-lg-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="96" height="96"><path fill="#8bc34a" d="M28.211,4.419C26.841,4.107,25.472,4,24,4C12.947,4,4,12.947,4,24c0,1.472,0.21,3.051,0.526,4.42C8.63,17.684,16.948,8.63,28.211,4.419z M43.79,21.262c-0.21-1.789-0.736-3.47-1.369-5.049c-17.788,5.683-24.317,20.736-26.106,26.316c1.579,0.629,3.265,1.155,5.053,1.365C23.264,39.053,29.263,27.158,43.79,21.262z M43.79,26.841c-1.896,0.95-4.844,2.841-8.947,6.632c-4.634,4.42-6.842,8.104-7.792,10.317c2.632-0.424,5.16-1.369,7.368-2.738L44,44c0,0-1.896-7.052-2.841-9.79C42.528,32.002,43.367,29.473,43.79,26.841z M39.683,11.578c-1.262-1.579-2.632-2.841-4.313-4.001C29.999,9.156,14,15.369,7.577,35.472c1.16,1.579,2.422,3.055,4.001,4.211C18.42,18.844,34.21,12.947,39.683,11.578z"/></svg>
-                        </td>
-                        <td class="col-7 col-lg-4 m-lg-2 pt-lg-5">
-                            <a href="{{ forum.url }}">
-                                <span class="color_white">{{ forum.name }}</span>
+                        <td class="col-4 col-lg-4 m-lg-2 pt-lg-2">
+                            <a href="{{ topic.url }}">
+                                <span class="color_white">{{ topic.name }}</span>
                             </a></br>
-                            <span class="d-none d-lg-none d-xl-block color_grey">{{ forum.description }}</span></td>
-                        <td class="col-4 col-lg-2 m-lg-3 pt-lg-5">
-                            <span class="color_grey">{{ forum.nbMessages }} messages</span>
+                            <span class="d-none d-lg-none d-xl-block color_grey"> Created By {{ topic.authorName }}, {{ topic.createdAt }}</span></td>
+                        <td class="col-7 col-lg-2 m-lg-3 pt-lg-2">
+                            <span class="color_grey">{{ topic.nbMessages }} responses</span><span class="color_grey ml-2 mr-2">/</span>
+                            <span class="color_grey">{{ topic.nbView }} views</span>
                         </td>
-                        <td class="d-none d-lg-none d-xl-block col-3 pt-5">
+                        <td class="d-none d-lg-none d-xl-block col-3 pt-2">
                         {% for last_message in last_messages %}
-                            {% if loop.index == forum.id %}
+                            {% if loop.index == topic.id %}
                                 {% if last_message is not null and last_message is not empty %}
                                 <div class="row">
                                     <div class="col-2 col-lg-3 d-inline">
-                                        <img class="img-responsive" src="./assets/img/avatars/{{ last_message.authorAvatar }}_avatar.jpg" alt="avatar_{{ last_message.authorAvatar }}" style="width:55px;"/>
+                                        <img class="img-responsive" src="/assets/img/avatars/{{ last_message.authorAvatar }}_avatar.jpg" alt="avatar_{{ last_message.authorAvatar }}" style="width:55px;"/>
                                     </div>
                                     <div class="col-7 col-lg-9 d-inline">
                                         <div class="row">
-                                            <span class="col-5 col-lg-12"><a href="{{ last_message.topicUrl }}"><span class="color_white">{{ last_message.topicName }}</span></a></span>
-                                            <span class="col-7 col-lg-12 color_grey">By <a href="/users/{{ last_message.authorName }}"><span class="color_red">{{ last_message.authorName }}</span></a>, {{ last_message.createdAt }}</span>
+                                            <span class="col-5 col-lg-12">By <a href="/users/{{ last_message.authorName }}"><span class="color_red">{{ last_message.authorName }}</span></a></span>
+                                            <span class="col-7 col-lg-12 color_grey">{{ last_message.createdAt }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -90,16 +92,6 @@
                     {% endfor %}
                 </tbody>
             </table>
-        </div>
-        <div class="row">
-            <div class="col-12 mt-3">
-                <h3>Who is online ?</h3>
-            </div>
-            <div class="col-12 ml-2 mb-3">
-                {% for user in users %}
-                    <a href="#"><span class="fs_20 color_grey">{{ user.nickname }}(Lvl : {{user.lvl}}) , </span></a>
-                {% endfor %}
-            </div>
         </div>
     </div>
 </div>

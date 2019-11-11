@@ -15,8 +15,7 @@ tbody::before
 {
     content: '';
     display: block;
-    height: 75px;
-    border-bottom: 1px dashed #888;
+    height: 15px;
 }
 
 tbody::after
@@ -31,7 +30,6 @@ tfoot::before
     content: '';
     display: block;
     height: 25px;
-    border-top: 1px dashed #888;
 }
 
 #home_forum tbody tr {
@@ -89,6 +87,10 @@ input.error{
     color: #fff;
 }
 
+.fs_20{
+    font-size: 20px;
+}
+
 #background_login{
     background-image: url('./../img/dollars.gif');
     background-repeat: no-repeat;
@@ -113,6 +115,10 @@ input.error{
 
 .col-550{
     min-width: 550px;
+}
+
+.breadcrumb{
+    background-color: #333;
 }
 
 #table_avatar table tr td:hover{
