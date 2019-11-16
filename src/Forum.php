@@ -6,7 +6,7 @@ use App\Database\Connect;
 use DateTime;
 
 /**
- * Création et gestion d'un utilisateur
+ * Création et gestion d'un forum
  * 
  * @author Laisné Jérémie <laisne.jeremie83@gmail.com>
  */
@@ -21,6 +21,8 @@ class Forum extends Connect
     private $avatar_author;
     private $orderc;
     private $isDeleted;
+    private $id_group;
+    private $name_group;
     private $created_at;
     private $updated_at;
 
@@ -31,7 +33,7 @@ class Forum extends Connect
 
     protected $db;
 
-    function __construct(int $id = null, string $name = null, string $description = null, bool $active = null, int $id_author = null, string $name_author = null, string $avatar_author = null, int $orderc = null, bool $isDeleted = false, datetime $created_at = null, datetime $updated_at = null, string $url = null, int $nbTopics = 0, int $nbTopicsModerator = 0, int $nbMessages = 0)
+    function __construct(int $id = null, string $name = null, string $description = null, bool $active = null, int $id_author = null, string $name_author = null, string $avatar_author = null, int $orderc = null, bool $isDeleted = false, datetime $created_at = null, datetime $updated_at = null, string $url = null, int $id_group = null, string $name_group = null, int $nbTopics = 0, int $nbTopicsModerator = 0, int $nbMessages = 0)
     {
         $this->id = $id;
         $this->name = $name;
@@ -42,6 +44,8 @@ class Forum extends Connect
         $this->avatar_author = $avatar_author;
         $this->orderc = $orderc;
         $this->isDeleted = $isDeleted;
+        $this->id_group = $id_group;
+        $this->name_group = $name_group;
         $this->created_at = $created_at;
         $this->updated_at = $updated_at;
 
@@ -147,6 +151,26 @@ class Forum extends Connect
         $this->isDeleted = $isDeleted;
     }
 
+    function getGroupId() : ?int
+    {
+        return $this->id_group;
+    }
+
+    function setGroupId(int $id_group) : void
+    {
+        $this->id_group = $id_group;
+    }
+
+    function getGroupName() : ?string
+    {
+        return $this->name_group;
+    }
+
+    function setGroupName(string $name_group) : void
+    {
+        $this->name_group = $name_group;
+    }
+
     function getCreatedAt()
     {
         if ($this->created_at != null)
@@ -160,7 +184,6 @@ class Forum extends Connect
     {
         $this->created_at = $created_at;
     }
-    
 
     function getUpdatedAt() : ?Datetime
     {
@@ -200,6 +223,7 @@ class Forum extends Connect
                 a.avatar AS avatar_author,
                 f.orderc AS orderc,
                 f.isDeleted AS isDeleted,
+                f.id_group AS id_group,
                 f.created_at AS created_at,
                 f.updated_at AS updated_at
              FROM 
@@ -220,6 +244,7 @@ class Forum extends Connect
             $this->setActive($row["active"]);
             $this->setOrderc($row["orderc"]);
             $this->setIsDeleted($row["isDeleted"]);
+            $this->setGroupId($row["id_group"]);
             $this->setCreatedAt($row["created_at"]);
             $this->setUpdatedAt($row["updated_at"]);
 
@@ -228,7 +253,7 @@ class Forum extends Connect
                 $this->setNbTopics();
                 $this->setNbTopicsModerator();
                 $this->setNbMessages();
-                $pages = ceil($this->getNbTopics()/15);
+                $pages = ceil($this->getNbTopics()/PAGINATION_NB);
                 $pages == 0 ? $pages = 1 : $pages; 
                 $this->setUrl($pages);
             }
@@ -268,6 +293,7 @@ class Forum extends Connect
                 id_author,
                 orderc,
                 isDeleted,
+                id_group,
                 created_at
             )VALUES(
                 :name,
@@ -276,6 +302,7 @@ class Forum extends Connect
                 :id_author,
                 :orderc,
                 :isDeleted,
+                :id_group,
                 NOW()
             )");
         $smt->bindValue(":name", $this->getName(), \PDO::PARAM_STR);
@@ -283,6 +310,7 @@ class Forum extends Connect
         $smt->bindValue(":active", $this->getActive(), \PDO::PARAM_BOOL);
         $smt->bindValue(":id_author", $this->getAuthorId(), \PDO::PARAM_INT);
         $smt->bindValue(":orderc", $this->getOrderc(), \PDO::PARAM_INT);
+        $smt->bindValue(":id_group", $this->getGroupId(), \PDO::PARAM_INT);
         $smt->bindValue(":isDeleted", $this->getIsDeleted(), \PDO::PARAM_BOOL);
         if($smt->execute())
         {
@@ -325,6 +353,7 @@ class Forum extends Connect
                 id_author = :id_author,
                 orderc = :orderc,
                 isDeleted = :isDeleted,
+                id_group = :id_group,
                 updated_at = NOW()
             WHERE
                 id = :id
@@ -336,6 +365,7 @@ class Forum extends Connect
         $smt->bindValue(":id_author", $this->getAuthorId(), \PDO::PARAM_STR);
         $smt->bindValue(":orderc", $this->getOrderc(), \PDO::PARAM_INT);
         $smt->bindValue(":isDeleted", $this->getIsDeleted(), \PDO::PARAM_BOOL);
+        $smt->bindValue(":id_group", $this->getGroupId(), \PDO::PARAM_INT);
         if ($smt->execute())
         {
             return true;
@@ -351,11 +381,11 @@ class Forum extends Connect
     {
         if ($search == null)
         {
-            $this->url = "forum/". $this->id. "/page-" . $page;
+            $this->url = "forum/". $this->id. "/page-1";
         }
         else
         {
-            $this->url = "forum/". $this->id . "/page-" . $page . "?s=" . $search;
+            $this->url = "forum/". $this->id . "/page-1?s=" . $search;
         }
     }
 
@@ -445,6 +475,7 @@ class Forum extends Connect
      */
     public static function getTopics($id_forum, $full = false, $deb = 0, $fin = 9) : array
     {
+        $limit = $fin - $deb;
         $db = Connect::getPDO();
         $smt = $db->prepare(
             "SELECT
@@ -475,7 +506,8 @@ class Forum extends Connect
                 user AS a2 ON a2.id = t.id_last_author
             WHERE
                 t.id_forum = :id_forum
-            LIMIT $deb, $fin"
+            ORDER BY updated_at DESC, created_at DESC, id DESC
+            LIMIT $limit OFFSET $deb"
         );
         $smt->bindValue(":id_forum", $id_forum, \PDO::PARAM_INT);
         $smt->execute();
@@ -506,7 +538,7 @@ class Forum extends Connect
             {
                 $topic->setNbMessages();
                 $topic->setNbMessagesModerator();
-                $pages = ceil($topic->getNbMessages()/15);
+                $pages = ceil($topic->getNbMessages()/$limit);
                 $pages == 0 ? $pages = 1 : $pages; 
                 $topic->setUrl($topic->getName(), $pages);
             }
@@ -587,11 +619,17 @@ class Forum extends Connect
      * 
      *  @return array
      */
-    public static function getAll($full = false) : array
+    public static function getAll($full = false, $forum = null) : array
     {
+        $req = "";
+        if ($forum != null)
+        {
+            $req = "JOIN groupforum AS g ON $forum = f.id_group";
+        }
+
         $db = Connect::getPDO();
         $smt = $db->prepare(
-            "SELECT
+            "SELECT DISTINCT
                 f.id as id,
                 f.name AS name,
                 f.description AS description,
@@ -601,12 +639,14 @@ class Forum extends Connect
                 a.avatar as avatar_author,
                 f.orderc AS orderc,
                 f.isDeleted AS isDeleted,
+                f.id_group AS id_group,
                 f.created_at AS created_at,
                 f.updated_at AS updated_at
             FROM 
                 forum AS f
             JOIN
-                user AS a ON a.id = f.id_author");
+                user AS a ON a.id = f.id_author
+            $req");
         $smt->execute();
         $forums = [];
         $i = 0;
@@ -622,6 +662,7 @@ class Forum extends Connect
             $forum->setActive($row["active"]);
             $forum->setorderc($row["orderc"]);
             $forum->setIsDeleted($row["isDeleted"]);
+            $forum->setGroupId($row["id_group"]);
             $forum->setCreatedAt($row["created_at"]);
             $forum->setUpdatedAt($row["updated_at"]);
 
@@ -630,9 +671,16 @@ class Forum extends Connect
                 $forum->setNbTopics();
                 $forum->setNbTopicsModerator();
                 $forum->setNbMessages();
-                $pages = ceil($forum->getNbTopics()/15);
+                $pages = ceil($forum->getNbTopics()/PAGINATION_NB);
                 $pages == 0 ? $pages = 1 : $pages; 
                 $forum->setUrl($pages);
+            }
+
+            if ($forum != null)
+            {
+                $group_name = new Group($row["id_group"]);
+                $group_name->load();
+                $forum->setGroupName($group_name->getName());
             }
 
             $forums[$i] = $forum; 

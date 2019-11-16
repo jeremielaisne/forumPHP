@@ -30,8 +30,13 @@ else
         $forum->load(true);
         $title = $forum->getName() . " - Dollars Forum";
         $description = $forum->getDescription() . " - Topics dollars durarara!";
-        $deb = ($page-1)*10;
-        $fin = ($page*10)-1;
+        $deb = ($page-1)*PAGINATION_NB;
+        $fin = $page*PAGINATION_NB;
+
+        $nbTopics = $forum->getNbTopics();
+        $pagination1 = $page;
+        $pagination2 = ceil($nbTopics/PAGINATION_NB);
+
         $topics = Forum::getTopics($forum->getId(), true, $deb, $fin);
 
         $list_last_message = [];

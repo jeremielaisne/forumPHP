@@ -42,14 +42,15 @@ $app->get("/home", function(){
     require __DIR__ . "/controllers/home.php";
     $pm->render('home.html.twig', ['title' => $title, 'description' => $description, 
     'nickname'=> $nickname, 'nbpost' => $nbpost, 'level' => $level, 'is_working' => $is_working, 
-    'forums' => $forums, 'last_messages' => $list_last_message, 'users' => $users_connected]);
+    'tab_forums' => $tab_forums, 'last_messages' => $list_last_message, 'users' => $users_connected]);
 });
 
 $app->get("/forum/:nb/page-:page", function($id, $page) use ($app){
     require __DIR__ . "/controllers/topics.php";
     $pm->render('topic.html.twig', ['title' => $title, 'description' => $description,
     'nickname'=> $nickname, 'nbpost' => $nbpost, 'level' => $level, 'is_working' => $is_working, 
-    'forum' => $forum, 'last_messages' => $list_last_message, 'topics' => $topics]);
+    'forum' => $forum, 'last_messages' => $list_last_message, 'topics' => $topics, 'pagination1' => $pagination1,
+    'pagination2' => $pagination2]);
 }, "topic_url")->with("nb", "[1-9]+");
 
 $app->get("/forum/:nbf/:nbt/:paget", function($id_forum, $id_topic, $page_topic) use ($app){

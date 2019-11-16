@@ -4,7 +4,11 @@ namespace App;
 
 use App\Database\Connect;
 use DateTime;
-
+/**
+ * Création et gestion d'un message
+ * 
+ * @author Laisné Jérémie <laisne.jeremie83@gmail.com>
+ */
 class Message extends Connect
 {
     private $id;

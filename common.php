@@ -3,6 +3,7 @@
 require_once(__DIR__ . "/vendor/autoload.php");
 
 define("COOKIE_NAME", "DurararaForum");
+define("PAGINATION_NB", 10);
 
 /* Usage de variables $GET et $POST */
 function getURL($full = false)

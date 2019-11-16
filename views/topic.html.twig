@@ -54,7 +54,7 @@
         <div class="row">
             <h1 class="col-12 mt-3"><i class="fab fa-jedi-order"></i> {{ title }}</h1>
             <p class="col-12">{{ description }}</p>
-            <table id="home_forum" style="width:100%;">
+            <table class="home_forum" style="width:100%;">
                 <tbody class="container-fluid">
                 {% for topic in topics %}
                     <tr class="row">
@@ -92,6 +92,9 @@
                     {% endfor %}
                 </tbody>
             </table>
+            <div class="offset-4">
+                <span class="pagination" pagination1="{{ pagination1 }}" pagination2="{{ pagination2 }}">Dooooollars</span>
+            </div>
         </div>
     </div>
 </div>

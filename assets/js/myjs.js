@@ -7,6 +7,126 @@ var errorMessage = function errorMessage(msg){
 }
 
 $(document).ready( function() {
+    /***
+     * 
+     * Pagination **
+     * */
+    const pagination = document.querySelector('.pagination');
+    const text = pagination.textContent;
+    function goToPage(number = 0) {
+        const links = document.querySelectorAll('a');
+        links.forEach((link, index) => {
+            const letter = link.querySelector('span');
+            if (index === number) {
+            letter.style.color = 'var(--current)';
+            link.className = 'current';
+            } else {
+            const letterText = letter.textContent;
+            letter.style.color = `var(--${letterText}`;
+            link.className = '';
+            }
+        });
+    }
+    let deb = parseInt($('.pagination').attr("pagination1"))
+    let limite = parseInt($('.pagination').attr("pagination2"))
+    let cpt = 0
+    let diff = limite - deb
+    let passage = false
+    const html = text
+    .split('')
+    .map((letter) => {
+        if (letter !== 'o') {
+            return `<span style="color: var(--${letter.toLowerCase()})">${letter}</span>`;
+        }
+        cpt += 1;
+        if (limite >= 4) {
+            if (diff >= 3) {
+                if (cpt === 4) {
+                    return `<a href="page-${limite}" onclick="goToPage(${limite - 1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span> | ${limite}</span></a>`;
+                }
+                else {
+                    if (cpt === 1 && cpt === deb && passage === false) {
+                        passage = true
+                        return `<a href="page-${2}" onclick="goToPage(${2})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${2}</span></a><a href="page-${3}" onclick="goToPage(${3})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${3}</span></a>`;
+                    } else if (cpt === 2 && cpt === deb && passage === false) {
+                        passage = true
+                        return `<a href="page-${1}" onclick="goToPage(${1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${1}</span></a><a><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>..</span></a><a href="page-${3}" onclick="goToPage(${3})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${3}</span></a>`;
+                    } else if (cpt === 3 && passage === false){
+                        return `<a href="page-${deb - 1}" onclick="goToPage(${deb - 1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${deb - 1}</span></a><a><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>..</span></a><a href="page-${deb + 1}" onclick="goToPage(${deb + 1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${deb + 1}</span></a>`;
+                    }
+                }
+            }
+            else if (diff == 2) {
+                if (cpt === 4) {
+                    return `<a href="page-${deb - 1}" onclick="goToPage(${deb - 1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${deb - 1}</span></a><a><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>..</span></a><a href="page-${deb + 1}" onclick="goToPage(${deb + 1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${deb + 1}</span></a><a href="page-${limite}" onclick="goToPage(${limite - 1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${limite}</span></a>`;
+                }
+            }
+            else if (diff == 1) {
+                if (cpt === 4) {
+                    return `<a href="page-${1}" onclick="goToPage(${1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${1} | </span></a><a href="page-${deb - 1}" onclick="goToPage(${deb - 1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${deb - 1}</span></a><a><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>..</span></a><a href="page-${limite}" onclick="goToPage(${limite - 1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${limite}</span></a>`;
+                }
+            }
+            else if (diff == 0) {
+                if (cpt === 4) {
+                    return `<a href="page-${1}" onclick="goToPage(${1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${1} | </span></a><a href="page-${deb - 2}" onclick="goToPage(${deb - 2})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${deb - 2}</span></a><a href="page-${limite - 1}" onclick="goToPage(${limite - 1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${limite - 1}</span></a>`;
+                }
+            }
+            else {
+                if (passage === false) {
+                    passage = true
+                    return `<a><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span></span></a>`;
+                }
+            }
+        } else if (limite === 3){
+            if (diff == 2) {
+                if (cpt === 4) {
+                    return `<a href="page-${deb + 1}" onclick="goToPage(${deb + 1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${deb + 1}</span></a><a href="page-${limite}" onclick="goToPage(${limite - 1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${limite}</span></a>`;
+                }
+            }
+            else if (diff == 1) {
+                if (cpt === 4) {
+                    return `<a href="page-${deb - 1}" onclick="goToPage(${deb - 1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${deb - 1}</span></a><a><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>..</span></a><a href="page-${limite}" onclick="goToPage(${limite - 1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${limite}</span></a>`;
+                }
+            }
+            else if (diff == 0) {
+                if (cpt === 4) {
+                    return `<a href="page-${1}" onclick="goToPage(${1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${1}</span></a><a href="page-${deb - 1}" onclick="goToPage(${deb - 1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${deb - 1}</span></a>`;
+                }
+            }
+            else {
+                if (passage === false) {
+                    passage = true
+                    return `<a><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span></span></a>`;
+                }
+            }
+        } else if (limite === 2){
+            if (diff == 0) {
+                if (cpt === 4) {
+                    return `<a href="page-${1}" onclick="goToPage(${1})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${1}</span></a>`;
+                }
+            }
+            else if (diff == 1) {
+                if (cpt === 4) {
+                    return `<a href="page-${2}" onclick="goToPage(${2})"><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span>${2}</span></a>`;
+                }
+            }
+            else {
+                if (passage === false) {
+                    passage = true
+                    return `<a><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span></span></a>`;
+                }
+            }
+        } else {
+            return `<a><span style="color: var(--${letter.toLowerCase()})">${letter}</span><span></span></a>`;
+        }
+    })
+    .join('');
+    pagination.innerHTML = html;
+
+    /**
+     * 
+     * 
+     */
     $("body").on("click", "input:not(.selected)", function(){
         if($("input").hasClass("error")){
             $("input").removeClass("error")
@@ -97,22 +217,4 @@ $(document).ready( function() {
         $("#avatar_signup").attr('value',$(this).data("id"))
         $(this).parent().css('cursor', 'default');
     })
-    //HOME
-    /*
-    $('#home_forum').DataTable({
-        "searching": false,
-        "paging": false,
-        "info": false,
-        "autoWidth": false,
-        "fnDrawCallback": function (oSettings) {
-            $(oSettings.nTHead).hide();
-        },
-        "columns": [
-            { "width": "10%" },
-            { "width": "50%" },
-            { "width": "10%" },
-            { "width": "30%" }
-        ]
-    });
-    */
 })

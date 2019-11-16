@@ -15,7 +15,6 @@ tbody::before
 {
     content: '';
     display: block;
-    height: 15px;
 }
 
 tbody::after
@@ -32,7 +31,7 @@ tfoot::before
     height: 25px;
 }
 
-#home_forum tbody tr {
+.home_forum tbody tr {
     padding: 5px;
     border-bottom: 2px solid rgb(23, 31, 46);
     margin: 20px;
@@ -125,4 +124,55 @@ input.error{
     opacity: 1;
 	-webkit-transition: .3s ease-in-out;
 	transition: .3s ease-in-out;
+}
+
+/*
+ **
+ ** Pagination
+ */
+div .pagination {
+    display: flex;
+}
+.pagination {
+    margin: auto;
+    margin-bottom: initial;
+    padding: 1rem;
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-shadow: 0 1px 1px hsla(0, 0%, 0%, 0.1);
+  
+    /* set custom properties for the different letters and their colors */
+    --d: #4285f4;
+    --o: #ea4335;
+    --l: #fbbc05;
+    --a: #34a853;
+    --r: #4285f4;
+    --s: #ea4335;
+  
+    /* custom property for the current page */
+    --current: #ea4335;
+  
+    display: grid;
+    grid-auto-flow: column;
+}
+.pagination a {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.pagination a span:last-of-type {
+    font-weight: initial;
+    font-size: 1.5rem;
+    color: #ea4335;
+} 
+.pagination a:hover span:last-of-type {
+    text-decoration: underline;
+}
+.pagination a.current {
+    cursor: initial;
+}
+.pagination a.current span:last-of-type {
+    color: initial;
+    text-decoration: none;
 }

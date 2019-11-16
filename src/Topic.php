@@ -6,6 +6,11 @@ use App\Database\Connect;
 use Cocur\Slugify\Slugify;
 use DateTime;
 
+/**
+ * Création et gestion d'un topic
+ * 
+ * @author Laisné Jérémie <laisne.jeremie83@gmail.com>
+ */
 class Topic extends Connect{
 
     private $id;
@@ -303,7 +308,7 @@ class Topic extends Connect{
             {
                 $this->setNbMessages();
                 $this->setNbMessagesModerator();
-                $pages = ceil($this->getNbMessages()/15);
+                $pages = ceil($this->getNbMessages()/PAGINATION_NB);
                 $pages == 0 ? $pages = 1 : $pages; 
                 $this->setUrl($this->getName(), $pages);
             }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Group;
 use App\Forum;
 use App\User;
 use App\Page\PageMaker;
@@ -23,13 +24,19 @@ else
     $level = $pm->getUsercookie()->getUser()->getLvl();
     $is_working = $pm->getUsercookie()->getUser()->getIsWorking();
 
-    $forums = Forum::getAll(true);
+    $nbGroups = Group::getNbGroups();
     $list_last_message = [];
-    foreach ($forums as $forum)
+    $tab_forums = [];
+    for ($i=1; $i<=$nbGroups; $i++)
     {
-        $id_forum = $forum->getId();
-        $last_message = Forum::getLastMessage($id_forum, true);
-        $list_last_message[$id_forum] = $last_message;
+        $forums = Forum::getAll(true, $i);
+        foreach ($forums as $forum)
+        {
+            $id_forum = $forum->getId();
+            $last_message = Forum::getLastMessage($id_forum, true);
+            $list_last_message[$id_forum] = $last_message;
+        }
+        $tab_forums[$i] = $forums;
     }
     $user = $pm->getUsercookie()->getUser();
     $user->update();
