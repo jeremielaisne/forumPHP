@@ -31,16 +31,36 @@ SET time_zone = "+00:00";
 DROP TABLE IF EXISTS `forum`;
 CREATE TABLE IF NOT EXISTS `forum` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) COLLATE utf8_bin NOT NULL,
+  `name` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `description` text CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `id_author` int(11) NOT NULL,
   `active` tinyint(4) NOT NULL,
   `orderc` int(11) NOT NULL,
   `isDeleted` tinyint(1) NOT NULL,
+  `id_group` int(11) NOT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `id_author` (`id_author`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  KEY `id_author` (`id_author`),
+  KEY `id_group` (`id_group`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `groupforum`
+--
+
+DROP TABLE IF EXISTS `groupforum`;
+CREATE TABLE IF NOT EXISTS `groupforum` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) COLLATE utf8mb4_bin NOT NULL,
+  `orderc` int(11) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
 
 -- --------------------------------------------------------
 
@@ -61,7 +81,7 @@ CREATE TABLE IF NOT EXISTS `message` (
   PRIMARY KEY (`id`),
   KEY `id_author` (`id_author`),
   KEY `id_topic` (`id_topic`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 -- --------------------------------------------------------
 
@@ -84,10 +104,11 @@ CREATE TABLE IF NOT EXISTS `topic` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `id_author` (`id_author`),
   KEY `id_forum` (`id_forum`),
-  KEY `id_last_author` (`id_last_author`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+  KEY `fk_topic_user_1` (`id_author`),
+  KEY `fk_topic_user_2` (`id_last_author`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
 
 -- --------------------------------------------------------
 
@@ -98,29 +119,30 @@ CREATE TABLE IF NOT EXISTS `topic` (
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
   `id` int(15) NOT NULL AUTO_INCREMENT,
-  `nickname` varchar(15) COLLATE utf8_bin NOT NULL,
-  `firstname` varchar(50) COLLATE utf8_bin DEFAULT NULL,
-  `lastname` varchar(50) COLLATE utf8_bin DEFAULT NULL,
-  `email` varchar(100) COLLATE utf8_bin NOT NULL,
+  `nickname` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `firstname` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `lastname` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `email` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `avatar` int(11) NOT NULL,
-  `statusc` varchar(15) COLLATE utf8_bin NOT NULL,
+  `statusc` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `lvl` int(11) DEFAULT NULL,
-  `mdp` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `mdp` varchar(150) COLLATE utf8mb4_bin NOT NULL,
   `nbpost` int(11) DEFAULT NULL,
   `is_working` tinyint(1) DEFAULT NULL,
   `is_connect` tinyint(4) DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL,
-  `ip` varchar(150) COLLATE utf8_bin DEFAULT NULL,
+  `ip` varchar(150) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 --
 -- Déchargement des données de la table `user`
 --
 
 INSERT INTO `user` (`id`, `nickname`, `firstname`, `lastname`, `email`, `avatar`, `statusc`, `lvl`, `mdp`, `nbpost`, `is_working`, `is_connect`, `created_at`, `updated_at`, `ip`) VALUES
-(1, 'KickR', 'Jérémie', 'Laisné', 'jlai083@live.fr', 13, 'ADMINISTRATEUR', 1, 'a94a8fe5ccb19ba61c4c0873d391e987982fbbd3', 0, 0, 1, '2019-09-12 17:55:27', '2019-10-07 17:53:31', '::1 : Port : 62635');
+(1, 'KickR', 'Jérémie', 'Laisné', 'jlai083@live.fr', 13, 'ADMINISTRATEUR', 1, 'a94a8fe5ccb19ba61c4c0873d391e987982fbbd3', 0, 0, 1, '2019-09-12 17:55:27', '2019-11-18 17:52:16', '::1 : Port : 52602'),
+(2, 'Test', 'test', 'test', 'test@live.fr', 24, 'INVITE', 1, 'dc76e9f0c0006e8f919e0c515c66dbba3982f785', 0, 0, 1, '2019-11-18 17:07:41', '2019-11-18 18:09:39', '::1 : Port : 51644');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

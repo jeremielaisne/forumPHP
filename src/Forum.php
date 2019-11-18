@@ -381,11 +381,11 @@ class Forum extends Connect
     {
         if ($search == null)
         {
-            $this->url = "forum/". $this->id. "/page-1";
+            $this->url = "forum/". $this->getId(). "/page-1";
         }
         else
         {
-            $this->url = "forum/". $this->id . "/page-1?s=" . $search;
+            $this->url = "forum/". $this->getId() . "/page-1?s=" . $search;
         }
     }
 
@@ -506,7 +506,7 @@ class Forum extends Connect
                 user AS a2 ON a2.id = t.id_last_author
             WHERE
                 t.id_forum = :id_forum
-            ORDER BY updated_at DESC, created_at DESC, id DESC
+            ORDER BY is_pin DESC, updated_at DESC, created_at DESC, id DESC
             LIMIT $limit OFFSET $deb"
         );
         $smt->bindValue(":id_forum", $id_forum, \PDO::PARAM_INT);

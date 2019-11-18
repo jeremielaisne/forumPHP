@@ -123,11 +123,11 @@ function textDatetime($dt)
             $hour = floor($diff/$hourstamp);
             if ($hour == 1)
             {
-                $res = "a day ago";
+                $res = "a hours ago";
             }
             else
             {
-                $res = $hour . " days ago";
+                $res = $hour . " hours ago";
             }
             break;
         case ($diff >= $daystamp) && ($diff < $monthstamp):

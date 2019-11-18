@@ -574,7 +574,7 @@ class User extends Connect {
         $users = [];
         if($smt->execute())
         {
-            if ($row = $smt->fetch(\PDO::FETCH_ASSOC))
+            while ($row = $smt->fetch(\PDO::FETCH_ASSOC))
             {
                 $user = new User();
                 $user->setId($row["id"]);

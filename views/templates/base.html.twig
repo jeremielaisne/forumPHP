@@ -10,8 +10,42 @@
         <link rel="stylesheet" type="text/css" href="/assets/css/awesomecss/all.css"/>
         <link rel="stylesheet" type="text/css" href="/assets/css/mystyle.css"/>
     </head>
-    <body id="{% block id_body %}{% endblock %}" class="{% block class_body %}{% endblock %}">
-        {% block header %}{% endblock %}
+    <body id="{% block id_body %}corps-forum{% endblock %}" class="{% block class_body %}corps-forum{% endblock %}">
+        {% block header %}
+        <nav class="navbar navbar-expend-lg navbar-light bg-light">
+            <span class="navbar-brand" href="#" />Durarara Forum - デュラララ!!</span>
+            <span class="block"></span>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/edit"><i class="zmdi zmdi-edit"></i> Edit profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout"><i class="zmdi zmdi-lock-outline"></i> Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="col-12 bg-secondary">
+            <div class="row">
+                <div class="d-none d-lg-none d-xl-block col-lg-7">
+                    <div class="p-1">
+                        <span class="pl-1 pr-2"><i class="fab fa-jedi-order"></i> Hi !</span>{{ nickname }} <i class="fab fa-galactic-senate"></i><span class="pl-4 pr-4"></span>
+                        {% if is_working != true %}<span class="pl-4 pr-2"> - Your account is inactive. An administrator will activate your account soon - </span>{% endif %}
+                    </div>
+                </div>
+                <div class="d-none d-lg-none d-xl-block col-lg-5">
+                    <div class="p-1">
+                        <span>Level {{ level }}</span> | <span>Number messages : {{ nbpost }}</span>
+                        <a href="tchat"><span class="float-right"><i class="zmdi zmdi-dialpad" style="color:#fff"></i></span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
         <main>
             {% block content %}
             {% endblock %}

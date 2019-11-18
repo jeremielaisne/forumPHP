@@ -474,11 +474,11 @@ class Topic extends Connect{
         $slug_name = $slugify->slugify($name);
         if ($search == null)
         {
-            $this->url = "forum/". $this->getId(). "/" . $slug_name . "/page-" . $page;
+            $this->url = "/forum/". $this->getId() . "/" . $slug_name . "/page-" . $page;
         }
         else
         {
-            $this->url = "forum/". $this->getId() . "/" . $slug_name . "/page-" . $page . "?s=" . $search;
+            $this->url = "/forum/". $this->getId() . "/" . $slug_name . "/page-" . $page . "?s=" . $search;
         }
     }
 

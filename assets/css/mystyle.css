@@ -126,6 +126,12 @@ input.error{
 	transition: .3s ease-in-out;
 }
 
+.background_is_pin {
+    background-color: #CF3919;
+    opacity: 0.6;
+    filter: alpha(opacity=60);
+}
+
 /*
  **
  ** Pagination

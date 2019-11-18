@@ -1,39 +1,4 @@
 {% extends 'templates/base.html.twig' %}
-{% block header %}
-<nav class="navbar navbar-expend-lg navbar-light bg-light">
-    <span class="navbar-brand" href="#" />Durarara Forum - デュラララ!!</span>
-    <span class="block"></span>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="edit"><i class="zmdi zmdi-edit"></i> Edit profile</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="logout"><i class="zmdi zmdi-lock-outline"></i> Logout</a>
-            </li>
-        </ul>
-    </div>
-</nav>
-<div class="col-12 bg-secondary">
-    <div class="row">
-        <div class="d-none d-lg-none d-xl-block col-lg-7">
-            <div class="p-1">
-                <span class="pl-1 pr-2"><i class="fab fa-jedi-order"></i> Hi !</span>{{ nickname }} <i class="fab fa-galactic-senate"></i><span class="pl-4 pr-4"></span>
-                {% if is_working != true %}<span class="pl-4 pr-2"> - Your account is inactive. An administrator will activate your account soon - </span>{% endif %}
-            </div>
-        </div>
-        <div class="d-none d-lg-none d-xl-block col-lg-5">
-            <div class="p-1">
-                <span>Level {{ level }}</span> | <span>Number messages : {{ nbpost }}</span>
-                <a href="tchat"><span class="float-right"><i class="zmdi zmdi-dialpad" style="color:#fff"></i></span></a>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
 {% block content %}
 <div class="container">
     <div class="col-12 mt-5 mb-5 background_grey">
@@ -52,15 +17,25 @@
             </nav>
         </div>
         <div class="row">
-            <h1 class="col-12 mt-3"><i class="fab fa-jedi-order"></i> {{ title }}</h1>
+        <div class="col-12 pl-lg-5 pr-lg-5">
+            <h2 class="col-12 mt-3"><i class="fab fa-jedi-order"></i> {{ title }}</h2>
             <p class="col-12">{{ description }}</p>
             <table class="home_forum" style="width:100%;">
                 <tbody class="container-fluid">
                 {% for topic in topics %}
+                    {% if topic.ispin == true %}
+                    <tr class="row background_is_pin">
+                    {% else %}
                     <tr class="row">
+                    {% endif %}
+                        {% if topic.ispin == true %}
+                        <td>
+                            <p><i class="fas fa-thumbtack"></i></p>
+                        </td>
+                        {% endif %}
                         <td class="col-4 col-lg-4 m-lg-2 pt-lg-2">
                             <a href="{{ topic.url }}">
-                                <span class="color_white">{{ topic.name }}</span>
+                                <span class="color_white"><i class="fas fa-folder"></i> {{ topic.name }}</span>
                             </a></br>
                             <span class="d-none d-lg-none d-xl-block color_grey"> Created By {{ topic.authorName }}, {{ topic.createdAt }}</span></td>
                         <td class="col-7 col-lg-2 m-lg-3 pt-lg-2">
@@ -68,9 +43,10 @@
                             <span class="color_grey">{{ topic.nbView }} views</span>
                         </td>
                         <td class="d-none d-lg-none d-xl-block col-3 pt-2">
+                        {% set msg = false %}
                         {% for last_message in last_messages %}
-                            {% if loop.index == topic.id %}
-                                {% if last_message is not null and last_message is not empty %}
+                            {% if last_message is not null and last_message is not empty %}
+                                {% if last_message.topicid == topic.id %}
                                 <div class="row">
                                     <div class="col-2 col-lg-3 d-inline">
                                         <img class="img-responsive" src="/assets/img/avatars/{{ last_message.authorAvatar }}_avatar.jpg" alt="avatar_{{ last_message.authorAvatar }}" style="width:55px;"/>
@@ -82,11 +58,13 @@
                                         </div>
                                     </div>
                                 </div>
-                                {% else %}
-                                <span>No message has been posted</span>
+                                {% set msg = true %}
                                 {% endif %}
                             {% endif %}
                         {% endfor %}
+                        {% if msg == false %}
+                            <span>No message has been posted</span>
+                        {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -95,6 +73,7 @@
             <div class="offset-4">
                 <span class="pagination" pagination1="{{ pagination1 }}" pagination2="{{ pagination2 }}">Dooooollars</span>
             </div>
+        </div>
         </div>
     </div>
 </div>
