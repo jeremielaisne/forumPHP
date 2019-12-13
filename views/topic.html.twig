@@ -17,63 +17,90 @@
             </nav>
         </div>
         <div class="row">
-        <div class="col-12 pl-lg-5 pr-lg-5">
-            <h2 class="col-12 mt-3"><i class="fab fa-jedi-order"></i> {{ title }}</h2>
-            <p class="col-12">{{ description }}</p>
-            <table class="home_forum" style="width:100%;">
-                <tbody class="container-fluid">
-                {% for topic in topics %}
-                    {% if topic.ispin == true %}
-                    <tr class="row background_is_pin">
-                    {% else %}
-                    <tr class="row">
-                    {% endif %}
+            <div class="col-12 pl-lg-5 pr-lg-5">
+                <h2 class="col-12 mt-3"><i class="fab fa-jedi-order"></i> {{ title }}</h2>
+                <p class="col-12">{{ description }}</p>
+                <table class="home_forum" style="width:100%;">
+                    <tbody class="container-fluid">
+                    {% for topic in topics %}
                         {% if topic.ispin == true %}
-                        <td>
-                            <p><i class="fas fa-thumbtack"></i></p>
-                        </td>
+                        <tr class="row background_is_pin">
+                        {% else %}
+                        <tr class="row">
                         {% endif %}
-                        <td class="col-4 col-lg-4 m-lg-2 pt-lg-2">
-                            <a href="{{ topic.url }}">
-                                <span class="color_white"><i class="fas fa-folder"></i> {{ topic.name }}</span>
-                            </a></br>
-                            <span class="d-none d-lg-none d-xl-block color_grey"> Created By {{ topic.authorName }}, {{ topic.createdAt }}</span></td>
-                        <td class="col-7 col-lg-2 m-lg-3 pt-lg-2">
-                            <span class="color_grey">{{ topic.nbMessages }} responses</span><span class="color_grey ml-2 mr-2">/</span>
-                            <span class="color_grey">{{ topic.nbView }} views</span>
-                        </td>
-                        <td class="d-none d-lg-none d-xl-block col-3 pt-2">
-                        {% set msg = false %}
-                        {% for last_message in last_messages %}
-                            {% if last_message is not null and last_message is not empty %}
-                                {% if last_message.topicid == topic.id %}
-                                <div class="row">
-                                    <div class="col-2 col-lg-3 d-inline">
-                                        <img class="img-responsive" src="/assets/img/avatars/{{ last_message.authorAvatar }}_avatar.jpg" alt="avatar_{{ last_message.authorAvatar }}" style="width:55px;"/>
-                                    </div>
-                                    <div class="col-7 col-lg-9 d-inline">
-                                        <div class="row">
-                                            <span class="col-5 col-lg-12">By <a href="/users/{{ last_message.authorName }}"><span class="color_red">{{ last_message.authorName }}</span></a></span>
-                                            <span class="col-7 col-lg-12 color_grey">{{ last_message.createdAt }}</span>
+                            {% if topic.ispin == true %}
+                            <td>
+                                <p><i class="fas fa-thumbtack"></i></p>
+                            </td>
+                            {% endif %}
+                            <td class="col-4 col-lg-5 m-lg-2 pt-lg-2">
+                                <a href="{{ topic.url }}">
+                                    <span class="color_white"><i class="fas fa-folder"></i> {{ topic.name }}</span>
+                                </a></br>
+                                <span class="d-none d-lg-none d-xl-block color_grey"> Created By {{ topic.authorName }}, {{ topic.createdAt }}</span></td>
+                            <td class="col-7 col-lg-3 m-lg-3 pt-lg-2">
+                                <span class="color_grey">{{ topic.nbMessages }} responses</span><span class="color_grey ml-2 mr-2">/</span>
+                                <span class="color_grey">{{ topic.nbView }} views</span>
+                            </td>
+                            <td class="d-none d-lg-none d-xl-block col-3 pt-2">
+                            {% set msg = false %}
+                            {% for last_message in last_messages %}
+                                {% if last_message is not null and last_message is not empty %}
+                                    {% if last_message.topicid == topic.id %}
+                                    <div class="row">
+                                        <div class="col-2 col-lg-3 d-inline">
+                                            <img class="img-responsive" src="/assets/img/avatars/{{ last_message.authorAvatar }}_avatar.jpg" alt="avatar_{{ last_message.authorAvatar }}" style="width:55px;"/>
+                                        </div>
+                                        <div class="col-7 col-lg-9 d-inline">
+                                            <div class="row">
+                                                <span class="col-5 col-lg-12">By <a href="/users/{{ last_message.authorName }}"><span class="color_red">{{ last_message.authorName }}</span></a></span>
+                                                <span class="col-7 col-lg-12 color_grey">{{ last_message.createdAt }}</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                {% set msg = true %}
+                                    {% set msg = true %}
+                                    {% endif %}
                                 {% endif %}
+                            {% endfor %}
+                            {% if msg == false %}
+                                <span>No message has been posted</span>
                             {% endif %}
+                            </td>
+                        </tr>
                         {% endfor %}
-                        {% if msg == false %}
-                            <span>No message has been posted</span>
-                        {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <div class="offset-4">
-                <span class="pagination" pagination1="{{ pagination1 }}" pagination2="{{ pagination2 }}">Dooooollars</span>
+                    </tbody>
+                </table>
+                <div class="offset-4">
+                    <span class="pagination" pagination1="{{ pagination1 }}" pagination2="{{ pagination2 }}">Dooooollars</span>
+                </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="m-5 p-2 bg-secondary">
+                <div id="form-container">
+                    <form id="form-topic" method="POST">
+                        <div class="form-group m-0">
+                            <div id="toolbar-container" class="p-2 bg-dark border border-dark">
+                                <span class="text-secondary"><img class="opacity-05 img-responsive border rounded border-1 mr-2" src="/assets/img/avatars/{{ avatar }}_avatar.jpg" alt="avatar_{{ avatar }}" style="max-height:50px;max-width:50px;" /> Create your topic</span>
+                            </div>
+                            <input name="topic-content" type="hidden">
+                            <div id="editor-container-topic" class="border-top border-left border-right border-dark">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input name="message-content" type="hidden">
+                            <div id="editor-container-message" class="border-bottom border-left border-right border-dark">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mt-2">
+                                <button class="btn btn-success" type="submit"><i class="fas fa-paper-plane"></i> Send</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>

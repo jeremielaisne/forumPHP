@@ -47,7 +47,6 @@ class Message extends Connect
     /**
      * Getters et Setters
      */
-
     function getId() : int
     {
         return $this->id;
@@ -186,7 +185,6 @@ class Message extends Connect
     /**
      * Methodes
      */
-
     public function load($full = false)
     {
         $smt = $this->db->prepare(

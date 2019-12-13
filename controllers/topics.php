@@ -20,6 +20,7 @@ else
 {
     $search = (string) getFormVal("search");
     $nickname = $pm->getUsercookie()->getUser()->getNickname();
+    $avatar = $pm->getUsercookie()->getUser()->getAvatar();
     $nbpost = $pm->getUsercookie()->getUser()->getNbPost();
     $level = $pm->getUsercookie()->getUser()->getLvl();
     $is_working = $pm->getUsercookie()->getUser()->getIsWorking();

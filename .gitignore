@@ -2,3 +2,4 @@ vendor
 temp
 src/mailer/init.php
 phpunit.bat
+node_modules

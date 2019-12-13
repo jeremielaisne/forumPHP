@@ -11,6 +11,23 @@ body, footer{
     color: #fff;
 }
 
+#toolbar-container, .ql-toolbar.ql-snow {
+    font-family: 'Khand', sans-serif;
+}
+
+.ql-toolbar.ql-snow{
+    border: 1px solid #333;
+    background-color: #aaa;
+}
+
+#editor-container-message>.ql-editor{
+    min-height: 200px;
+}
+
+.ql-editor{
+    color: #222;
+}
+
 tbody::before
 {
     content: '';
@@ -149,9 +166,9 @@ div .pagination {
   
     /* set custom properties for the different letters and their colors */
     --d: #4285f4;
-    --o: #ea4335;
-    --l: #fbbc05;
-    --a: #34a853;
+    --o: #fbbc05;
+    --l: #34a853;
+    --a: #4285f4;
     --r: #4285f4;
     --s: #ea4335;
   
@@ -170,7 +187,7 @@ div .pagination {
 .pagination a span:last-of-type {
     font-weight: initial;
     font-size: 1.5rem;
-    color: #ea4335;
+    color: #fbbc05;
 } 
 .pagination a:hover span:last-of-type {
     text-decoration: underline;

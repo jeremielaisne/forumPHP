@@ -5,9 +5,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
         <meta http-equiv="X-UA-Compatible" content="ie-edge">
         <title>{% block title %}{{ title }}{% endblock %}</title>
+        <!-- Assets stylesheets -->
         <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap431.min.css"/>
         <link rel="stylesheet" type="text/css" href="/assets/css/material-design-iconic-font.min.css"/>
         <link rel="stylesheet" type="text/css" href="/assets/css/awesomecss/all.css"/>
+        <!-- Include stylesheet -->
+        <link rel="stylesheet" type="text/css" href="/assets/css/quill.css">
+        <link rel="stylesheet" type="text/css" href="/assets/css/quill-emoji.css">
         <link rel="stylesheet" type="text/css" href="/assets/css/mystyle.css"/>
     </head>
     <body id="{% block id_body %}corps-forum{% endblock %}" class="{% block class_body %}corps-forum{% endblock %}">
@@ -54,8 +58,7 @@
     <footer id="footer" class="w-100 mt-3 pt-3 text-center">
         <p>2019 - Copyright © Laisné Jérémie</p>
     </footer>
-    <script type="text/javascript" src="/assets/js/jquery341.min.js"></script>
-    <script type="text/javascript" src="/assets/js/bootstrap431.min.js"></script>
-    <script type="text/javascript" src="/assets/js/myjs.js"></script>
+    <!-- Main JS Script -->
+    <script type="text/javascript" src="/assets/js/dist/myjs.js"></script>
 </html>
 
